@@ -1,0 +1,2 @@
+export type Severity = "Critical" | "High" | "Medium" | "Low";
+export interface Threat { id: string; sourceIp: string; sourceCountry: string; countryCode: string; targetState: string; attackType: string; severity: Severity; confidence: number; timestamp: string; mitre: string; }

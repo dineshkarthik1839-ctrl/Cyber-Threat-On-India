@@ -1,0 +1,3 @@
+import type { ReactNode } from "react";
+type Props={label:string;value:string;detail:string;accent:string;icon:ReactNode};
+export default function StatCard({label,value,detail,accent,icon}:Props){return <div className="panel" style={{padding:18,position:"relative",overflow:"hidden"}}><div style={{position:"absolute",width:90,height:90,borderRadius:"50%",background:accent,filter:"blur(38px)",right:-35,top:-35,opacity:.4}}/><div style={{display:"flex",justifyContent:"space-between",color:"#8595aa",fontSize:12}}><span>{label}</span><span style={{color:"#9bcfee"}}>{icon}</span></div><div style={{fontSize:28,fontWeight:720,marginTop:13,letterSpacing:"-.04em",color:"#f0f7ff"}}>{value}</div><div style={{fontSize:11,color:"#67cba7",marginTop:7}}>↗ {detail}</div></div>}
