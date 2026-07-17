@@ -1,14 +1,5 @@
-from pydantic import BaseModel
-from datetime import datetime
+from app.models.attack import Attack
+from app.models.user import User
+from app.models.settings import SystemSetting
 
-class Attack(BaseModel):
-    id: int
-    timestamp: datetime
-    source_country: str
-    target_country: str
-    target_state: str
-    attack_type: str
-    severity: str
-    source_ip: str
-    destination_ip: str
-    port: int
+__all__ = ["Attack", "User", "SystemSetting"]

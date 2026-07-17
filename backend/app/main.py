@@ -1,20 +1,81 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import CORS_ORIGINS
-from app.database.database import engine
-from app.models.attack import Base
-from app.routers import attacks, threat_feed
+from app.database.database import engine, Base
+# Import models to register them on Base
+import app.models
+from app.database.dependencies import get_db
+from app.database.database import SessionLocal
+from app.models.user import User
+from app.services.security import get_password_hash
+from app.services.scheduler import start_scheduler, shutdown_scheduler
+from app.services.telemetry_generator import run_telemetry_simulator
+from app.services.websocket_manager import manager
+
+# Import routers
+from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
+    # 1. Create DB tables if they don't exist
     Base.metadata.create_all(bind=engine)
+    
+    # 2. Seed default analyst user
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == "analyst@ictip.in").first()
+        if not user:
+            default_user = User(
+                email="analyst@ictip.in",
+                hashed_password=get_password_hash("password"),
+                role="admin"
+            )
+            db.add(default_user)
+            db.commit()
+            print("Default analyst user seeded: analyst@ictip.in / password")
+    except Exception as e:
+        print(f"Error seeding user: {e}")
+    finally:
+        db.close()
+        
+    # 3. Start APScheduler background collectors
+    start_scheduler()
+    
+    # 4. Start Telemetry Simulator loop
+    sim_task = asyncio.create_task(run_telemetry_simulator())
+    
     yield
+    
+    # Clean up background tasks on shutdown
+    sim_task.cancel()
+    shutdown_scheduler()
 
-app = FastAPI(title="India Cyber Threat Intelligence Platform", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type"])
+app = FastAPI(
+    title="India Cyber Threat Intelligence Platform (ICTIP)",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS configurations
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"]
+)
+
+# Mount REST endpoints
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(attacks.router, prefix="/api/v1")
 app.include_router(threat_feed.router, prefix="/api/v1")
+app.include_router(settings.router, prefix="/api/v1")
+app.include_router(ioc.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")
+app.include_router(ai_analyst.router, prefix="/api/v1")
 
 @app.get("/health", tags=["Operations"])
 def health():
@@ -22,10 +83,12 @@ def health():
 
 @app.websocket("/ws/threats")
 async def threat_socket(websocket: WebSocket):
-    await websocket.accept()
+    """WebSocket endpoint to push normalized threat telemetry in real-time."""
+    await manager.connect(websocket)
     try:
         while True:
+            # Receive heartbeat and keep connection alive
             await websocket.receive_text()
             await websocket.send_json({"type": "heartbeat", "status": "connected"})
     except WebSocketDisconnect:
-        return
+        manager.disconnect(websocket)

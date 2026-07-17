@@ -1,24 +1,67 @@
 import requests
-from app.config import ABUSEIPDB_API_KEY
+from typing import Any, Optional
+from datetime import datetime, UTC
 
 URL = "https://api.abuseipdb.com/api/v2/blacklist"
 
-
-def fetch_blacklist():
+def fetch_abuseipdb_indicators(api_key: Optional[str] = None, limit: int = 40) -> list[dict[str, Any]]:
+    """Fetch and normalize the current AbuseIPDB blacklist."""
+    if not api_key:
+        return []
 
     headers = {
-        "Key": ABUSEIPDB_API_KEY,
-        "Accept": "application/json"
+        "Key": api_key,
+        "Accept": "application/json",
     }
+    params = {"confidenceMinimum": 90}
 
-    params = {
-        "confidenceMinimum": 90
-    }
+    try:
+        response = requests.get(URL, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        indicators = response.json().get("data", [])[:limit]
+    except Exception as e:
+        print(f"Error fetching AbuseIPDB: {e}")
+        return []
 
-    response = requests.get(
-        URL,
-        headers=headers,
-        params=params
-    )
+    normalized_threats = []
+    
+    # A list of Indian states to distribute unconfirmed global intelligence projections
+    indian_states = ["Maharashtra", "Karnataka", "Delhi", "Tamil Nadu", "Telangana", "Gujarat", "West Bengal"]
+    state_index = 0
 
-    return response.json()
+    for indicator in indicators:
+        ip = indicator.get("ipAddress", "Unknown")
+        country_name = indicator.get("countryName") or "Unknown"
+        country_code = indicator.get("countryCode") or "--"
+        confidence = indicator.get("abuseConfidenceScore", 90)
+        
+        target_state = indian_states[state_index % len(indian_states)] + " (Projected Feed)"
+        state_index += 1
+        
+        normalized_threats.append({
+            "indicator": ip,
+            "indicator_type": "ip",
+            "source": "abuseipdb",
+            "source_country": country_name,
+            "source_country_code": country_code,
+            "target_country": "India",
+            "target_state": target_state,
+            "attack_type": "Credential stuffing / Brute Force",
+            "severity": severity_for(confidence),
+            "confidence": confidence,
+            "mitre_tactic": "T1110", # Brute Force
+            "description": f"AbuseIPDB reputation alert. IP reported with high confidence score {confidence}%. Originates from {country_name}.",
+            "is_confirmed_india_target": False,
+            "timestamp": datetime.utcnow()
+        })
+
+    return normalized_threats
+
+def severity_for(confidence: int) -> str:
+    if confidence >= 95:
+        return "Critical"
+    if confidence >= 80:
+        return "High"
+    if confidence >= 50:
+        return "Medium"
+    return "Low"

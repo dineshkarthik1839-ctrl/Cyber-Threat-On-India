@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ictip-db
+    environment:
+      POSTGRES_DB: ictip
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ictip"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ictip-api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ictip-web
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  postgres_data:
