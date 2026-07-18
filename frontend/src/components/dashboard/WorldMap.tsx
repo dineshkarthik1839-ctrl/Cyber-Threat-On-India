@@ -320,9 +320,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             display: none !important;
           }
           .leaflet-tooltip {
-            background: transparent;
-            border: none;
-            box-shadow: none;
+            background: rgba(10, 15, 26, 0.95);
+            border: 1px solid #1a8dd0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 8px 12px;
           }
           .empty-icon {
             display: none;
