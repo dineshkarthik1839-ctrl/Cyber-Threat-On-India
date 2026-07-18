@@ -35,7 +35,7 @@ export default function LiveFeed({ threats }: LiveFeedProps) {
 
   return (
     <div style={{ overflow: "hidden", height: "100%", paddingRight: 4 }}>
-      <div style={{ maxHeight: 280, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, paddingRight: 4 }}>
+      <div style={{ maxHeight: 380, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, paddingRight: 4 }}>
         <AnimatePresence initial={false}>
           {threats.slice(0, 15).map((threat, idx) => {
             const styles = getSeverityStyle(threat.severity);

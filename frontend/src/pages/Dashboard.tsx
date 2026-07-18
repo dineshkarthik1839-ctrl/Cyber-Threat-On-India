@@ -178,10 +178,12 @@ export default function Dashboard() {
 
       <div className="three-col-grid">
         {/* Live Threat Log */}
-        <div className="panel" style={{ padding: 18 }}>
-          <h2 className="section-title">Live Ticker</h2>
-          <p className="section-subtitle" style={{ marginBottom: 16 }}>Normalized incoming security incidents</p>
-          <LiveFeed threats={threats} />
+        <div className="panel" style={{ padding: "12px 18px", display: "flex", flexDirection: "column" }}>
+          <h2 className="section-title" style={{ marginBottom: 2 }}>Live Ticker</h2>
+          <p className="section-subtitle" style={{ marginBottom: 10 }}>Normalized incoming security incidents</p>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <LiveFeed threats={threats} />
+          </div>
         </div>
 
         {/* Attack Volume Timeline */}
