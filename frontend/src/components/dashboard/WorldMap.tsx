@@ -230,6 +230,14 @@ interface ActivePath {
   status: "animating" | "landed";
 }
 
+interface HistoricalPoint {
+  id: string;
+  center: Point;
+  targetName: string;
+  attackType: string;
+  color: string;
+}
+
 interface WorldMapProps {
   threats: Threat[];
   isDemo: boolean;
@@ -238,6 +246,7 @@ interface WorldMapProps {
 export default function WorldMap({ threats, isDemo }: WorldMapProps) {
   const [activePaths, setActivePaths] = useState<ActivePath[]>([]);
   const [ripples, setRipples] = useState<{ id: string; center: Point; color: string }[]>([]);
+  const [historicalPoints, setHistoricalPoints] = useState<HistoricalPoint[]>([]);
 
   useEffect(() => {
     if (!threats.length) return;
@@ -288,7 +297,16 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
     setRipples((prev) => [...prev, { id: rippleId, center: targetPoint, color }]);
 
     setTimeout(() => {
-      setActivePaths((prev) => prev.filter((p) => p.id !== pathId));
+      setActivePaths((prev) => {
+        const path = prev.find((p) => p.id === pathId);
+        if (path) {
+          setHistoricalPoints((hp) => [
+            { id: path.id, center: targetPoint, targetName: path.targetName, attackType: path.attackType, color },
+            ...hp
+          ].slice(0, 100)); // Keep last 100 impacts on map
+        }
+        return prev.filter((p) => p.id !== pathId);
+      });
     }, 4500);
   };
 
@@ -326,6 +344,8 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             color: #ffffff !important;
             border-radius: 6px !important;
             padding: 8px 12px !important;
+            transition: none !important;
+            animation: none !important;
           }
           .empty-icon {
             display: none;
@@ -347,7 +367,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               opacity: p.status === "animating" ? 0.4 : 0.1
             }}
           >
-            <Tooltip>
+            <Tooltip opacity={1}>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Attacker:</strong> {p.sourceIp} <br />
                 <strong>Origin:</strong> {p.originName} <br />
@@ -385,7 +405,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 1.0
             }}
           >
-            <Tooltip>
+            <Tooltip opacity={1}>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Origin:</strong> {p.originName} <br />
                 <strong>IP:</strong> {p.sourceIp}
@@ -407,7 +427,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 1.0
             }}
           >
-            <Tooltip>
+            <Tooltip opacity={1}>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Destination:</strong> {getCityForState(p.targetName)}, {p.targetName} <br />
                 <strong>Threat Vector:</strong> {p.attackType}
@@ -438,6 +458,29 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             color={r.color}
             onComplete={() => handleRippleComplete(r.id)}
           />
+        ))}
+
+        {/* Historical impact points that stay on map */}
+        {historicalPoints.map((hp) => (
+          <Dot
+            key={`hist-${hp.id}`}
+            center={hp.center}
+            radius={3.5}
+            pathOptions={{
+              color: hp.color,
+              fillColor: hp.color,
+              fillOpacity: 0.85,
+              weight: 0
+            }}
+          >
+            <Tooltip opacity={1}>
+              <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
+                <strong>Destination:</strong> {getCityForState(hp.targetName)}, {hp.targetName} <br />
+                <strong>Threat Vector:</strong> {hp.attackType} <br />
+                <em style={{ fontSize: 9, opacity: 0.7, color: "#a5b4fc" }}>Recorded Historical Impact</em>
+              </div>
+            </Tooltip>
+          </Dot>
         ))}
       </Map>
       
