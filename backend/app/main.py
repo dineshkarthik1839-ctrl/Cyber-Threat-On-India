@@ -19,8 +19,7 @@ from app.services.telemetry_generator import run_telemetry_simulator
 from app.services.websocket_manager import manager
 
 # Import routers
-from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst, investigations
-
+from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst, investigations, sensors
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 1. Create DB tables if they don't exist
@@ -29,16 +28,16 @@ async def lifespan(app: FastAPI):
     # 2. Seed default analyst user
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.email == "analyst@ictip.in").first()
+        user = db.query(User).filter(User.email == "dineshkarthik1839@gmail.com").first()
         if not user:
             default_user = User(
-                email="analyst@ictip.in",
-                hashed_password=get_password_hash("password"),
+                email="dineshkarthik1839@gmail.com",
+                hashed_password=get_password_hash("A73897389@"),
                 role="admin"
             )
             db.add(default_user)
             db.commit()
-            print("Default analyst user seeded: analyst@ictip.in / password")
+            print("Default analyst user seeded: dineshkarthik1839@gmail.com")
     except Exception as e:
         print(f"Error seeding user: {e}")
     finally:
@@ -80,6 +79,7 @@ app.include_router(investigations.router, prefix="/api/v1/investigations", tags=
 app.include_router(ioc.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
 app.include_router(ai_analyst.router, prefix="/api/v1")
+app.include_router(sensors.router, prefix="/api/v1")
 
 @app.get("/health", tags=["Operations"])
 def health():

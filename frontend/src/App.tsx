@@ -10,6 +10,7 @@ import Reports from "./pages/Reports";
 import ThreatMapPage from "./pages/ThreatMapPage";
 import InvestigationView from "./pages/InvestigationView";
 import { ThreatDetailsProvider } from "./contexts/ThreatDetailsContext";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 export default function App() {
   return (
@@ -23,8 +24,8 @@ export default function App() {
           <Route path="/ioc-search" element={<IocSearch />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/threat-map" element={<ThreatMapPage />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/investigation/:eventId" element={<InvestigationView />} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/investigation/:eventId" element={<ProtectedRoute><InvestigationView /></ProtectedRoute>} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -4,8 +4,8 @@ import { loginAnalyst } from "../services/authService";
 import { FaShieldAlt } from "react-icons/fa";
 
 export default function Login() {
-  const [email, setEmail] = useState("analyst@ictip.in");
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState("dineshkarthik1839@gmail.com");
+  const [password, setPassword] = useState("A73897389@");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -97,7 +97,7 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="analyst@ictip.in"
+              placeholder="dineshkarthik1839@gmail.com"
               disabled={isLoading}
             />
           </div>

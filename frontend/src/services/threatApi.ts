@@ -58,20 +58,29 @@ export interface AiQueryResponse {
   answer: string;
 }
 
-// Normalize backend payload keys
 function normalizeThreat(item: any): Threat {
   return {
     id: item.id?.toString() ?? crypto.randomUUID(),
+    eventUuid: item.eventUuid ?? item.event_uuid,
     source: item.source ?? "Feed",
+    sourceType: item.sourceType ?? item.source_type ?? "INTELLIGENCE",
+    eventClassification: item.eventClassification ?? item.event_classification ?? "LIVE_INTELLIGENCE",
     sourceIp: item.sourceIp ?? item.source_ip ?? item.indicator ?? "Unknown",
     sourceCountry: item.sourceCountry ?? item.source_country ?? "Unknown",
     countryCode: item.countryCode ?? item.country_code ?? "--",
+    targetCountry: item.targetCountry ?? item.target_country ?? "India",
     targetState: item.targetState ?? item.target_state ?? "India",
+    targetCity: item.targetCity ?? item.target_city,
+    destinationPort: item.destinationPort ?? item.destination_port,
+    protocol: item.protocol ?? item.destination_protocol,
     attackType: item.attackType ?? item.attack_type ?? "Suspicious activity",
     severity: item.severity ?? "Medium",
     confidence: item.confidence ?? 50,
     timestamp: item.timestamp ?? new Date().toISOString(),
     mitre: item.mitre ?? item.mitre_tactic ?? "T0000",
+    description: item.description,
+    isConfirmedIndiaTarget: item.isConfirmedIndiaTarget ?? item.is_confirmed_india_target ?? false,
+    sensor: item.sensor
   };
 }
 

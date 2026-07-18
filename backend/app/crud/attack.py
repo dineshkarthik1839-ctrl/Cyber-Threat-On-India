@@ -18,6 +18,7 @@ def get_attacks_filtered(
     db: Session,
     severity: str = "All",
     source: str = "All",
+    source_type: str = "All",
     query: str = "",
     limit: int = 50
 ) -> list[Attack]:
@@ -29,6 +30,9 @@ def get_attacks_filtered(
         
     if source != "All":
         filters.append(Attack.source == source)
+        
+    if source_type != "All":
+        filters.append(Attack.source_type == source_type)
         
     if query:
         search_filter = or_(
@@ -98,7 +102,7 @@ def get_top_target_states(db: Session, limit: int = 5) -> list[dict]:
         
     return [
         {
-            "state": state.replace(" (Confirmed Target)", "").replace(" (Projected Feed)", "").replace(" (Projected Surface)", ""),
+            "state": state,
             "count": count,
             "share": round((count / total) * 100, 1)
         }

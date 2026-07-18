@@ -11,8 +11,14 @@ from app.collectors.cisa_kev import fetch_cisa_kev_indicators
 from app.models.attack import Attack
 from app.services.websocket_manager import manager
 
+
 def collect_and_save_all(db: Session) -> int:
-    """Execute all active intelligence collectors, normalize feeds, save and broadcast."""
+    """Execute all active intelligence collectors, normalize feeds, save and broadcast.
+
+    All intelligence-sourced events are tagged:
+        source_type = INTELLIGENCE
+        event_classification = LIVE_INTELLIGENCE (or INDIA_RELEVANT_INTELLIGENCE)
+    """
     settings = get_collector_settings(db)
     new_threats = []
 
@@ -58,24 +64,31 @@ def collect_and_save_all(db: Session) -> int:
             db.refresh(db_threat)
             saved_count += 1
 
-            # Build standardized real-time telemetry message
+            # Build standardized WebSocket message with explicit classification
             event = {
-                "id": f"event-{db_threat.id}",
+                "id": f"intel-{db_threat.id}",
+                "eventUuid": db_threat.event_uuid,
                 "indicator": db_threat.indicator,
                 "indicatorType": db_threat.indicator_type,
                 "source": db_threat.source,
-                "sourceIp": db_threat.indicator if db_threat.indicator_type == "ip" else "127.0.0.1",
+                "sourceType": db_threat.source_type or "INTELLIGENCE",
+                "eventClassification": db_threat.event_classification or "LIVE_INTELLIGENCE",
+                "sourceIp": db_threat.indicator if db_threat.indicator_type == "ip" else "N/A",
                 "sourceCountry": db_threat.source_country,
                 "countryCode": db_threat.source_country_code,
                 "targetCountry": db_threat.target_country,
                 "targetState": db_threat.target_state,
+                "targetCity": db_threat.target_city,
+                "destinationPort": db_threat.destination_port,
+                "protocol": db_threat.destination_protocol,
                 "attackType": db_threat.attack_type,
                 "severity": db_threat.severity,
                 "confidence": db_threat.confidence,
                 "mitre": db_threat.mitre_tactic,
                 "description": db_threat.description,
                 "timestamp": db_threat.timestamp.isoformat() + "Z" if db_threat.timestamp else datetime.utcnow().isoformat() + "Z",
-                "isConfirmed": db_threat.is_confirmed_india_target
+                "isConfirmedIndiaTarget": db_threat.is_confirmed_india_target,
+                "sensor": None
             }
 
             # Safely attempt to broadcast via WebSocket loop
@@ -83,7 +96,7 @@ def collect_and_save_all(db: Session) -> int:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
                     loop.create_task(manager.broadcast(event))
-            except Exception as ex:
+            except Exception:
                 # If scheduler is in a separate background thread without running event loop
                 pass
 

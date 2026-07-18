@@ -12,6 +12,8 @@ interface LiveThreatFeedState {
   lastUpdated: Date | null;
   refresh: () => Promise<void>;
   meta: LiveFeedResponse["meta"];
+  sourceFilter: "ALL" | "SENSOR" | "INTELLIGENCE" | "SIMULATION";
+  setSourceFilter: (filter: "ALL" | "SENSOR" | "INTELLIGENCE" | "SIMULATION") => void;
 }
 
 // Computes the WebSocket URL dynamically based on current host/environment
@@ -35,6 +37,7 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
   const [isDemo, setIsDemo] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [meta, setMeta] = useState<LiveFeedResponse["meta"]>({ mode: "live" });
+  const [sourceFilter, setSourceFilter] = useState<"ALL" | "SENSOR" | "INTELLIGENCE" | "SIMULATION">("ALL");
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -85,18 +88,28 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
             return;
           }
 
-          // Prepend new threat event received from WebSocket
           const newThreat: Threat = {
             id: data.id ?? crypto.randomUUID(),
+            eventUuid: data.eventUuid,
+            source: data.source ?? "Feed",
+            sourceType: data.sourceType ?? "INTELLIGENCE",
+            eventClassification: data.eventClassification ?? "LIVE_INTELLIGENCE",
             sourceIp: data.sourceIp ?? "Unknown",
             sourceCountry: data.sourceCountry ?? "Unknown",
             countryCode: data.countryCode ?? "--",
+            targetCountry: data.targetCountry ?? "India",
             targetState: data.targetState ?? "India",
+            targetCity: data.targetCity,
+            destinationPort: data.destinationPort,
+            protocol: data.protocol,
             attackType: data.attackType ?? "Suspicious activity",
             severity: data.severity ?? "Medium",
             confidence: data.confidence ?? 50,
             timestamp: data.timestamp ?? new Date().toISOString(),
             mitre: data.mitre ?? "T0000",
+            description: data.description,
+            isConfirmedIndiaTarget: data.isConfirmedIndiaTarget ?? false,
+            sensor: data.sensor,
           };
 
           setItems((prev) => {
@@ -145,5 +158,12 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
     };
   }, [refresh]);
 
-  return { threats: items, isRefreshing, isUnavailable, isDemo, lastUpdated, refresh, meta };
+  // Apply filter
+  const filteredThreats = items.filter(t => {
+    if (sourceFilter === "ALL") return true;
+    if (sourceFilter === "SIMULATION") return t.sourceType === "SIMULATOR";
+    return t.sourceType === sourceFilter;
+  });
+
+  return { threats: filteredThreats, isRefreshing, isUnavailable, isDemo, lastUpdated, refresh, meta, sourceFilter, setSourceFilter };
 }

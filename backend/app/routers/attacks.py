@@ -21,12 +21,13 @@ router = APIRouter(prefix="/attacks", tags=["Threat Landscape"])
 def read_attacks(
     severity: str = Query(default="All"),
     source: str = Query(default="All"),
+    source_type: str = Query(default="All"),
     query: str = Query(default=""),
     limit: int = Query(default=40, ge=1, le=200),
     db: Session = Depends(get_db)
 ):
     """Retrieve normalized threat list with filters (requires analyst login)."""
-    return get_attacks_filtered(db, severity=severity, source=source, query=query, limit=limit)
+    return get_attacks_filtered(db, severity=severity, source=source, source_type=source_type, query=query, limit=limit)
 
 @router.get("/stats/overview")
 def read_overview_stats(

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaShieldAlt, FaMapMarkerAlt, FaCrosshairs, FaNetworkWired, FaUserSecret, FaSearchPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import type { Threat } from "../../types/threat";
+import { hasActiveSession } from "../../services/authService";
 
 interface ThreatDetailsDrawerProps {
   threat: Threat | null;
@@ -59,7 +60,7 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
   const navigate = useNavigate();
   if (!threat) return null;
 
-  const isConfirmed = threat.targetState.includes("Confirmed") || threat.id.includes("sim") || threat.id.includes("demo");
+  const isConfirmed = threat.isConfirmedIndiaTarget;
   const recommendations = getRecommendations(threat.attackType);
   const riskScore = getRiskScore(threat.severity, threat.confidence);
 
@@ -133,11 +134,19 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
               </span>
               <span style={{ 
                 padding: "4px 10px", borderRadius: 16, fontSize: 11, fontWeight: 700, 
+                background: threat.sourceType === "SENSOR" ? "#ff637415" : threat.sourceType === "SIMULATOR" ? "#b684ff15" : "#f5d35f15",
+                color: threat.sourceType === "SENSOR" ? "#ff6374" : threat.sourceType === "SIMULATOR" ? "#b684ff" : "#f5d35f",
+                border: "1px solid currentColor"
+              }}>
+                {threat.sourceType === "SENSOR" ? "LIVE SENSOR" : threat.sourceType === "SIMULATOR" ? "SIMULATED" : "LIVE INTELLIGENCE"}
+              </span>
+              <span style={{ 
+                padding: "4px 10px", borderRadius: 16, fontSize: 11, fontWeight: 700, 
                 background: isConfirmed ? "#3be2a515" : "#7889a315",
                 color: isConfirmed ? "#3be2a5" : "#7889a3",
                 border: "1px solid currentColor"
               }}>
-                {isConfirmed ? "CONFIRMED INDIA TARGET" : "THREAT INTELLIGENCE"}
+                {isConfirmed ? "CONFIRMED INDIA TARGET" : "UNVERIFIED TARGET"}
               </span>
             </div>
 
@@ -156,9 +165,9 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
                   <FaMapMarkerAlt /> Target Asset
                 </div>
                 <div style={{ fontSize: 15, color: "#5ac2f0", fontWeight: 600 }}>
-                  {threat.targetState.replace(" (Confirmed Target)", "").replace(" (Projected Feed)", "").replace(" (Projected Surface)", "")}
+                  {threat.sensor?.name || threat.targetState.replace(" (Confirmed Target)", "").replace(" (Projected Feed)", "").replace(" (Projected Surface)", "")}
                 </div>
-                <div style={{ fontSize: 12, color: "#7889a3", marginTop: 4 }}>India</div>
+                <div style={{ fontSize: 12, color: "#7889a3", marginTop: 4 }}>{threat.targetCountry || "India"}</div>
               </div>
             </div>
 
@@ -180,9 +189,15 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
                   <span style={{ color: "#7889a3", fontSize: 12 }}>Timestamp</span>
                   <span style={{ color: "#f0f6fc", fontSize: 13 }}>{new Date(threat.timestamp).toLocaleString()}</span>
                 </div>
+                {threat.destinationPort && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                  <span style={{ color: "#7889a3", fontSize: 12 }}>Dest. Port</span>
+                  <span style={{ color: "#f0f6fc", fontSize: 13, fontWeight: 600 }}>{threat.destinationPort} / {threat.protocol}</span>
+                </div>
+                )}
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#7889a3", fontSize: 12 }}>Intelligence Source</span>
-                  <span style={{ color: "#5ac2f0", fontSize: 13, fontWeight: 600 }}>{threat.source || "Network Sensor"}</span>
+                  <span style={{ color: "#7889a3", fontSize: 12 }}>Source Node</span>
+                  <span style={{ color: "#5ac2f0", fontSize: 13, fontWeight: 600 }}>{threat.source}</span>
                 </div>
               </div>
             </div>
@@ -227,17 +242,19 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
           
           {/* Footer Action */}
           <div style={{ padding: "16px 24px", borderTop: "1px solid #1a2d45", background: "rgba(26, 45, 69, 0.4)", display: "flex", gap: 12 }}>
-            <button 
-              onClick={() => {
-                onClose();
-                navigate(`/investigation/${threat.id}`);
-              }}
-              style={{ flex: 1, background: "#5ac2f0", color: "#09121f", border: "none", padding: "12px", borderRadius: 8, fontWeight: 700, cursor: "pointer", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} 
-              onMouseOver={e => e.currentTarget.style.background = "#3ab7f5"} 
-              onMouseOut={e => e.currentTarget.style.background = "#5ac2f0"}
-            >
-              <FaSearchPlus /> Investigate
-            </button>
+            {hasActiveSession() && (
+              <button 
+                onClick={() => {
+                  onClose();
+                  navigate(`/investigation/${threat.id}`);
+                }}
+                style={{ flex: 1, background: "#5ac2f0", color: "#09121f", border: "none", padding: "12px", borderRadius: 8, fontWeight: 700, cursor: "pointer", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} 
+                onMouseOver={e => e.currentTarget.style.background = "#3ab7f5"} 
+                onMouseOut={e => e.currentTarget.style.background = "#5ac2f0"}
+              >
+                <FaSearchPlus /> Investigate
+              </button>
+            )}
             <button style={{ flex: 1, background: "#167bb8", color: "#fff", border: "none", padding: "12px", borderRadius: 8, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "#1a8dd0"} onMouseOut={e => e.currentTarget.style.background = "#167bb8"}>
               Export Report
             </button>

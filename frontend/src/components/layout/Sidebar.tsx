@@ -262,6 +262,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="muted" style={{ fontSize: 10, marginTop: 7 }}>
             All feeds are running in active telemetry.
           </div>
+          <div className="muted" style={{ fontSize: 10, marginTop: 7 }}>
+            Contact: <a href="mailto:dineshkarthik1839@gmail.com" style={{ color: "#55c5ff", textDecoration: "none" }}>dineshkarthik1839@gmail.com</a>
+          </div>
         </div>
       )}
 

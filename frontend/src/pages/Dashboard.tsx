@@ -7,6 +7,7 @@ import WorldMap from "../components/dashboard/WorldMap";
 import AIInsight from "../components/dashboard/AIInsight";
 import AttackTicker from "../components/dashboard/AttackTicker";
 import TopVectors from "../components/dashboard/TopVectors";
+import SensorHealth from "../components/dashboard/SensorHealth";
 import { useLiveThreatFeed } from "../hooks/useLiveThreatFeed";
 import {
   getOverviewStats,
@@ -23,7 +24,7 @@ const relativeTime = (date: Date | null) => {
 };
 
 export default function Dashboard() {
-  const { threats, isRefreshing, isUnavailable, isDemo, lastUpdated, refresh } = useLiveThreatFeed();
+  const { threats, isRefreshing, isUnavailable, isDemo, lastUpdated, refresh, sourceFilter, setSourceFilter } = useLiveThreatFeed();
   
   const [overview, setOverview] = useState<OverviewStats>({
     total_events: 0,
@@ -119,6 +120,36 @@ export default function Dashboard() {
         </button>
       </div>
 
+      <div style={{ display: "flex", gap: 12, marginBottom: 24, padding: "4px", background: "rgba(10, 18, 30, 0.4)", borderRadius: 10, width: "fit-content", border: "1px solid #1a2d45" }}>
+        {["ALL", "SENSOR", "INTELLIGENCE", "SIMULATION"].map(filter => (
+          <button
+            key={filter}
+            onClick={() => setSourceFilter(filter as any)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 700,
+              background: sourceFilter === filter ? "#1a8dd0" : "transparent",
+              color: sourceFilter === filter ? "#fff" : "#8da5c4",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+          >
+            {filter === "ALL" ? "ALL SOURCES" : 
+             filter === "SENSOR" ? "🔴 LIVE SENSOR" : 
+             filter === "INTELLIGENCE" ? "🟡 LIVE INTELLIGENCE" : "🟣 SIMULATION"}
+          </button>
+        ))}
+      </div>
+
+      {sourceFilter === "SIMULATION" && (
+        <div style={{ marginBottom: 20, padding: "10px 14px", borderRadius: 8, color: "#b684ff", border: "1px solid #5a3d8a", background: "rgba(90, 61, 138, 0.2)", fontSize: 13, fontWeight: 700 }}>
+          <strong>SIMULATION MODE:</strong> Displaying synthetic demonstration events. These are not real attacks.
+        </div>
+      )}
+
       {isUnavailable && (
         <div style={{ marginBottom: 20, padding: "10px 14px", borderRadius: 8, color: "#b8c7d8", border: "1px solid #36516d", background: "#112033", fontSize: 11 }}>
           <strong>Attention:</strong> The live intelligence telemetry feed is currently offline. Showing cached local historical data.
@@ -200,6 +231,9 @@ export default function Dashboard() {
           <TopVectors threats={threats} />
         </div>
       </div>
+      
+      {/* Sensor Health Monitoring */}
+      {sourceFilter !== "SIMULATION" && <SensorHealth />}
 
       {/* Most targeted states list */}
       <section className="panel" style={{ padding: 24, marginTop: 20 }}>

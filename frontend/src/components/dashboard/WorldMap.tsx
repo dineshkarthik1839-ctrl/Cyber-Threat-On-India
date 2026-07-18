@@ -229,6 +229,7 @@ interface ActivePath {
   attackType: string;
   severity: Threat["severity"];
   status: "animating" | "landed";
+  sourceType: string;
 }
 
 interface HistoricalPoint {
@@ -284,7 +285,8 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
       sourceIp: latestThreat.sourceIp,
       attackType: latestThreat.attackType,
       severity: latestThreat.severity,
-      status: "animating"
+      status: "animating",
+      sourceType: latestThreat.sourceType || "INTELLIGENCE"
     };
 
     setActivePaths((prev) => [newPath, ...prev].slice(0, 15));
@@ -387,24 +389,35 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
           </Line>
         ))}
 
-        {activePaths.map((p) => (
-          <Line
-            key={`core-${p.id}`}
-            positions={p.points}
-            pathOptions={{
-              color: p.color,
-              weight: 3.5,
-              opacity: p.status === "animating" ? 1.0 : 0.3,
-              dashArray: p.status === "animating" ? "8 6" : undefined
-            }}
-            eventHandlers={{
-              click: () => {
-                const threat = threats.find(t => t.id === p.id);
-                if (threat) openDrawer(threat);
-              }
-            }}
-          />
-        ))}
+        {activePaths.map((p) => {
+          let dashArray = undefined;
+          if (p.status === "animating") {
+            dashArray = "8 6";
+          } else if (p.sourceType === "SIMULATOR") {
+            dashArray = "2 4"; // Dotted for simulator
+          } else if (p.sourceType === "INTELLIGENCE") {
+            dashArray = "10 10"; // Dashed for intelligence
+          } // Solid for SENSOR (undefined)
+
+          return (
+            <Line
+              key={`core-${p.id}`}
+              positions={p.points}
+              pathOptions={{
+                color: p.color,
+                weight: 3.5,
+                opacity: p.status === "animating" ? 1.0 : 0.4,
+                dashArray: dashArray
+              }}
+              eventHandlers={{
+                click: () => {
+                  const threat = threats.find(t => t.id === p.id);
+                  if (threat) openDrawer(threat);
+                }
+              }}
+            />
+          );
+        })}
 
         {/* Origin dot markers */}
         {activePaths.map((p) => (
@@ -533,10 +546,13 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
         </div>
         <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #1a2d45", display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 14, height: 2, background: "#ff6374" }}></span> Confirmed Attack
+            <span style={{ width: 14, height: 2, background: "#ff6374" }}></span> Live Sensor (Confirmed)
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 14, height: 2, borderBottom: "2px dashed #9bacc0" }}></span> Intelligence Stream
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 2, borderBottom: "2px dotted #b684ff" }}></span> Simulated Demo
           </div>
         </div>
       </div>

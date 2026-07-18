@@ -42,7 +42,8 @@ export default function LiveFeed({ threats }: LiveFeedProps) {
         <AnimatePresence initial={false}>
           {threats.slice(0, 15).map((threat, idx) => {
             const styles = getSeverityStyle(threat.severity);
-            const isConfirmed = threat.targetState.includes("Confirmed") || threat.id.includes("sim") || threat.id.includes("demo");
+            const isSimulator = threat.sourceType === "SIMULATOR";
+            const isSensor = threat.sourceType === "SENSOR";
 
             return (
               <motion.div
@@ -110,9 +111,11 @@ export default function LiveFeed({ threats }: LiveFeedProps) {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span style={{ color: "#5ac2f0", fontWeight: 800, fontSize: 11, whiteSpace: "nowrap" }}>
-                        {threat.targetState.replace(" (Confirmed Target)", "").replace(" (Projected Feed)", "").replace(" (Projected Surface)", "").substring(0, 10)}
+                        {(threat.sensor?.name || threat.targetState).substring(0, 10)}
                       </span>
-                      <span style={{ fontSize: 8, color: "#6a7b95", textTransform: "uppercase" }}>Target Node</span>
+                      <span style={{ fontSize: 8, color: "#6a7b95", textTransform: "uppercase" }}>
+                        {isSensor ? `PORT ${threat.destinationPort || 'N/A'}` : 'Target Node'}
+                      </span>
                     </div>
                   </div>
 
@@ -134,13 +137,17 @@ export default function LiveFeed({ threats }: LiveFeedProps) {
 
                 {/* Right Section: Badges */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-                  {isConfirmed ? (
-                    <span style={{ color: "#50d7a9", fontSize: 8, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
-                      <FaShieldAlt size={8} /> CONFIRMED
+                  {isSensor ? (
+                    <span style={{ color: "#ff6374", fontSize: 8, fontWeight: 800, display: "flex", alignItems: "center", gap: 4, padding: "2px 6px", background: "rgba(255, 99, 116, 0.1)", borderRadius: 4 }}>
+                      🔴 LIVE SENSOR
+                    </span>
+                  ) : isSimulator ? (
+                    <span style={{ color: "#b684ff", fontSize: 8, fontWeight: 800, display: "flex", alignItems: "center", gap: 4, padding: "2px 6px", background: "rgba(182, 132, 255, 0.1)", borderRadius: 4 }}>
+                      🟣 SIMULATED
                     </span>
                   ) : (
-                    <span style={{ color: "#8190a6", fontSize: 8, fontWeight: 700 }}>
-                      UNVERIFIED
+                    <span style={{ color: "#f5d35f", fontSize: 8, fontWeight: 800, display: "flex", alignItems: "center", gap: 4, padding: "2px 6px", background: "rgba(245, 211, 95, 0.1)", borderRadius: 4 }}>
+                      🟡 LIVE INTELLIGENCE
                     </span>
                   )}
                   <span
