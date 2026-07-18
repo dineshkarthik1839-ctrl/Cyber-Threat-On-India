@@ -109,7 +109,28 @@ export default function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
           </div>
         </div>
 
-        {isLoggedIn && (
+        {!isLoggedIn ? (
+          <button
+            onClick={() => window.location.href = '/login'}
+            title="Admin Login"
+            style={{ 
+              marginLeft: 8, 
+              color: "#e2effc", 
+              background: "#167bb8", 
+              border: "none", 
+              padding: "6px 14px", 
+              borderRadius: 6, 
+              fontSize: 11, 
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "background 0.2s"
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#1a8dd0")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#167bb8")}
+          >
+            Admin Login
+          </button>
+        ) : (
           <button
             onClick={logoutAnalyst}
             title="Sign out securely"
