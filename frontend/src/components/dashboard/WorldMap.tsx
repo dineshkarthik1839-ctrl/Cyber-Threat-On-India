@@ -343,7 +343,17 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 8,
               opacity: p.status === "animating" ? 0.4 : 0.1
             }}
-          />
+          >
+            <Tooltip sticky>
+              <div style={{ fontSize: 10 }}>
+                <strong>Attacker:</strong> {p.sourceIp} <br />
+                <strong>Origin:</strong> {p.originName} <br />
+                <strong>Target:</strong> {p.targetName} <br />
+                <strong>Vector:</strong> {p.attackType} <br />
+                <strong>Severity:</strong> {p.severity}
+              </div>
+            </Tooltip>
+          </Line>
         ))}
 
         {activePaths.map((p) => (
