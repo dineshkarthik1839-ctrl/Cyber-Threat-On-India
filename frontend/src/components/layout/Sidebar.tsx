@@ -6,6 +6,7 @@ const nav = [
   { to: "/dashboard", label: "Command Center", icon: FaSatelliteDish, shortcut: "D" },
   { to: "/threat-feed", label: "Threat Feed", icon: FaShieldAlt, shortcut: "T" },
   { to: "/india", label: "India View", icon: FaGlobeAsia, shortcut: "I" },
+  { to: "/threat-map", label: "Threat Map", icon: FaGlobeAsia, shortcut: "M" },
   { to: "/ioc-search", label: "IOC Search", icon: FaSearch, shortcut: "S" },
   { to: "/reports", label: "Reports", icon: FaFileAlt, shortcut: "R" },
   { to: "/settings", label: "Settings", icon: FaCog, shortcut: "G" }

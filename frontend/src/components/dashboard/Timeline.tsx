@@ -11,7 +11,7 @@ interface TimelineProps {
 
 export default function Timeline({ data }: TimelineProps) {
   return (
-    <div style={{ height: 185, marginTop: 15 }}>
+    <div style={{ height: 280, marginTop: 15 }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data}>
           <defs>

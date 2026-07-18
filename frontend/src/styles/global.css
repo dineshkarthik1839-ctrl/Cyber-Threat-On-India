@@ -6,24 +6,24 @@
   color: #d9e5f3;
   background: #070b14;
   font-synthesis: none;
-  --bg-base: #070b14;
-  --bg-surface: #0b1220;
-  --bg-elevated: #111d30;
-  --border: #1e2c40;
-  --border-subtle: #162638;
-  --text-primary: #eaf4ff;
-  --text-secondary: #aab8c9;
-  --text-muted: #6a7b95;
-  --accent: #167bb8;
-  --accent-glow: rgba(22, 123, 184, 0.25);
-  --success: #50d7a9;
-  --warning: #fb8b32;
-  --danger: #ff6374;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
+  --bg-base: #090e17;
+  --bg-surface: #0e1524;
+  --bg-elevated: #131c2e;
+  --border: #223249;
+  --border-subtle: #19273a;
+  --text-primary: #f0f6fc;
+  --text-secondary: #b3c2d6;
+  --text-muted: #7889a3;
+  --accent: #2e8bc0;
+  --accent-glow: rgba(46, 139, 192, 0.35);
+  --success: #3be2a5;
+  --warning: #ff9e43;
+  --danger: #ff5266;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --sidebar-width: 250px;
   --sidebar-collapsed: 64px;
 }
@@ -67,10 +67,12 @@ button, input, select, textarea { font: inherit; }
 
 /* ─── Panel / Card ─── */
 .panel {
-  background: linear-gradient(135deg, rgba(17, 27, 45, 0.94), rgba(10, 17, 30, 0.94));
+  background: rgba(18, 26, 43, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 .panel:hover {
   border-color: #2a4060;
@@ -425,6 +427,11 @@ select.field {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #1e2c40; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #2a4060; }
+
+/* Dark mode filter for map */
+.leaflet-tile-pane {
+  filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(100%);
+}
 
 /* ─── Responsive ─── */
 @media (max-width: 1200px) {

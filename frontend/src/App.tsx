@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Settings from "./pages/Settings";
 import ThreatFeed from "./pages/ThreatFeed";
 import Reports from "./pages/Reports";
+import ThreatMapPage from "./pages/ThreatMapPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/india" element={<IndiaView />} />
         <Route path="/ioc-search" element={<IocSearch />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/threat-map" element={<ThreatMapPage />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

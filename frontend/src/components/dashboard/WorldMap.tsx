@@ -300,7 +300,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
     <div className="threat-map" style={{ height: "100%", border: "1px solid #142842", boxShadow: "inset 0 0 15px rgba(22, 123, 184, 0.15)" }}>
       <Map
         center={[20.5, 78.9]}
-        zoom={3}
+        zoom={4.5}
         zoomControl={true}
         attributionControl={false}
         scrollWheelZoom={true}

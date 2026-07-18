@@ -176,7 +176,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 0.4fr 0.35fr", gap: 20, marginTop: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "0.65fr 1.0fr 1.0fr", gap: 20, marginTop: 20 }}>
         {/* Live Threat Log */}
         <div className="panel" style={{ padding: 18 }}>
           <h2 className="section-title">Live Ticker</h2>
@@ -198,17 +198,17 @@ export default function Dashboard() {
       </div>
 
       {/* Most targeted states list */}
-      <section className="panel" style={{ padding: 20, marginTop: 20 }}>
+      <section className="panel" style={{ padding: 24, marginTop: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h2 className="section-title">Most Targeted Indian States</h2>
-            <p className="section-subtitle">State-level concentration and defensive posture ranking</p>
+            <h2 className="section-title" style={{ fontSize: "1.3rem" }}>Most Targeted Indian States</h2>
+            <p className="section-subtitle" style={{ fontSize: "0.9rem" }}>State-level concentration and defensive posture ranking</p>
           </div>
-          <span className="muted" style={{ fontSize: 11 }}>
+          <span className="muted" style={{ fontSize: 13 }}>
             {(overview.total_events || threats.length).toLocaleString()} events tracked
           </span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, marginTop: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24, marginTop: 24 }}>
           {states.map((state) => (
             <div key={state.state}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}>

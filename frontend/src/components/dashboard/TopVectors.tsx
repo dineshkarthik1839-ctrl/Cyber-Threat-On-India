@@ -27,21 +27,21 @@ export default function TopVectors({ threats }: TopVectorsProps) {
         Most prevalent exploitation techniques
       </p>
       
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {sorted.map(([type, count], idx) => {
           const pct = Math.round((count / maxCount) * 100);
           const color = barColors[idx % barColors.length];
           return (
             <div key={type}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                <span style={{ color: "#c8d7e8", fontSize: 11, fontWeight: 600 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                <span style={{ color: "#c8d7e8", fontSize: 13, fontWeight: 600 }}>
                   {type}
                 </span>
-                <span style={{ color, fontFamily: "monospace", fontSize: 12, fontWeight: 700 }}>
+                <span style={{ color, fontFamily: "monospace", fontSize: 14, fontWeight: 700 }}>
                   {count}
                 </span>
               </div>
-              <div style={{ height: 5, background: "#1a2a3e", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ height: 8, background: "#1a2a3e", borderRadius: 4, overflow: "hidden" }}>
                 <div
                   style={{
                     width: `${pct}%`,

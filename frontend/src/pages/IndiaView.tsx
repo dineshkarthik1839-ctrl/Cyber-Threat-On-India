@@ -80,7 +80,7 @@ export default function IndiaView() {
         <div
           className="panel"
           style={{
-            height: 480,
+            height: 750,
             padding: 14,
             position: "relative",
             overflow: "hidden"
@@ -88,7 +88,7 @@ export default function IndiaView() {
         >
           <Map
             center={[20.5, 78.9]}
-            zoom={5}
+            zoom={5.4}
             zoomControl={false}
             attributionControl={false}
             scrollWheelZoom={false}
@@ -107,7 +107,7 @@ export default function IndiaView() {
               const color = getMarkerColor(state.count);
 
               return (
-                <Dot
+                 <Dot
                   key={state.state}
                   center={coord}
                   radius={radius}
@@ -137,7 +137,7 @@ export default function IndiaView() {
         </div>
 
         {/* State prioritizations list */}
-        <div className="panel" style={{ padding: 20, display: "flex", flexDirection: "column", height: 480 }}>
+        <div className="panel" style={{ padding: 20, display: "flex", flexDirection: "column", height: 750 }}>
           <h2 className="section-title">State Prioritizations</h2>
           <p className="section-subtitle" style={{ marginBottom: 16 }}>Highest volume regional sensors</p>
           
