@@ -16,12 +16,18 @@ interface LiveThreatFeedState {
   setSourceFilter: (filter: "ALL" | "SENSOR" | "INTELLIGENCE" | "SIMULATION") => void;
 }
 
-// Computes the WebSocket URL dynamically based on current host/environment
 function getWebSocketUrl(): string {
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
   
   if (apiBase.startsWith("http")) {
-    return apiBase.replace("http", "ws").replace("/api/v1", "/ws/threats");
+    try {
+      const url = new URL(apiBase);
+      url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+      url.pathname = "/ws/threats";
+      return url.toString();
+    } catch (e) {
+      return apiBase.replace("http", "ws").replace("/api/v1", "/ws/threats");
+    }
   }
   
   // Relative fallback for Docker deployments

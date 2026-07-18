@@ -162,6 +162,8 @@ export default function Dashboard() {
         critical={overview.critical_events || threats.filter((t) => t.severity === "Critical").length}
         campaigns={overview.active_campaigns || new Set(threats.map((t) => t.attackType)).size}
         regions={overview.targeted_regions || new Set(threats.map((t) => t.targetState)).size}
+        isOffline={isUnavailable}
+        isDemo={isDemo}
       />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 10 }}>

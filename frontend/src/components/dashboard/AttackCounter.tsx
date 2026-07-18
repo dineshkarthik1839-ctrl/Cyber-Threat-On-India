@@ -3,9 +3,11 @@ interface AttackCounterProps {
   critical: number;
   campaigns: number;
   regions: number;
+  isOffline?: boolean;
+  isDemo?: boolean;
 }
 
-export default function AttackCounter({ total, critical, campaigns, regions }: AttackCounterProps) {
+export default function AttackCounter({ total, critical, campaigns, regions, isOffline, isDemo }: AttackCounterProps) {
   return (
     <div
       style={{
@@ -90,8 +92,15 @@ export default function AttackCounter({ total, critical, campaigns, regions }: A
             </div>
           </div>
           
-          <div style={{ fontSize: 10, color: "#6a7b95", marginTop: 12 }}>
-            • {item.desc}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+            <div style={{ fontSize: 10, color: "#6a7b95" }}>
+              • {item.desc}
+            </div>
+            {(isOffline || isDemo) && (
+              <div style={{ fontSize: 9, color: isOffline ? "#8190a6" : "#b684ff", border: `1px solid ${isOffline ? "#36516d" : "#5a3d8a"}`, padding: "2px 6px", borderRadius: 4, background: "rgba(0,0,0,0.2)" }}>
+                {isOffline ? "Historical" : "Simulated"}
+              </div>
+            )}
           </div>
         </div>
       ))}
