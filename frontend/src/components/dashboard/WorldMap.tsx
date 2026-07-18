@@ -367,7 +367,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               opacity: p.status === "animating" ? 0.4 : 0.1
             }}
           >
-            <Tooltip opacity={1}>
+            <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Attacker:</strong> {p.sourceIp} <br />
                 <strong>Origin:</strong> {p.originName} <br />
@@ -405,7 +405,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 1.0
             }}
           >
-            <Tooltip opacity={1}>
+            <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Origin:</strong> {p.originName} <br />
                 <strong>IP:</strong> {p.sourceIp}
@@ -427,7 +427,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 1.0
             }}
           >
-            <Tooltip opacity={1}>
+            <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Destination:</strong> {getCityForState(p.targetName)}, {p.targetName} <br />
                 <strong>Threat Vector:</strong> {p.attackType}
@@ -473,7 +473,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 0
             }}
           >
-            <Tooltip opacity={1}>
+            <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Destination:</strong> {getCityForState(hp.targetName)}, {hp.targetName} <br />
                 <strong>Threat Vector:</strong> {hp.attackType} <br />
