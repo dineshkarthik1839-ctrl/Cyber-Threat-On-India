@@ -25,19 +25,33 @@ async def lifespan(app: FastAPI):
     # 1. Create DB tables if they don't exist
     Base.metadata.create_all(bind=engine)
     
-    # 1.5 Add missing columns to 'attacks' table safely (fixes 500 error on remote Postgres)
-    from sqlalchemy import text
+    # 1.5 Add missing columns to 'attacks' table safely (fixes 500 error on remote Postgres/SQLite)
+    from sqlalchemy import text, inspect
     try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS source_type VARCHAR(50) DEFAULT 'INTELLIGENCE';"))
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS event_classification VARCHAR(80) DEFAULT 'LIVE_INTELLIGENCE';"))
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS sensor_id VARCHAR(64);"))
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS is_confirmed_india_target BOOLEAN DEFAULT FALSE;"))
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS indicator_type VARCHAR(50) DEFAULT 'ip';"))
-            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS raw_event_reference VARCHAR(500);"))
-            conn.commit()
+        inspector = inspect(engine)
+        if inspector.has_table("attacks"):
+            columns = [col['name'] for col in inspector.get_columns("attacks")]
+            
+            new_columns = [
+                ("event_uuid", "VARCHAR(64)"),
+                ("source_type", "VARCHAR(50) DEFAULT 'INTELLIGENCE'"),
+                ("event_classification", "VARCHAR(80) DEFAULT 'LIVE_INTELLIGENCE'"),
+                ("sensor_id", "VARCHAR(64)"),
+                ("is_confirmed_india_target", "BOOLEAN DEFAULT FALSE"),
+                ("indicator_type", "VARCHAR(50) DEFAULT 'ip'"),
+                ("raw_event_reference", "VARCHAR(500)")
+            ]
+            
+            with engine.connect() as conn:
+                for col_name, col_type in new_columns:
+                    if col_name not in columns:
+                        try:
+                            conn.execute(text(f"ALTER TABLE attacks ADD COLUMN {col_name} {col_type};"))
+                        except Exception as e:
+                            print(f"Warning: Failed to add column {col_name}: {e}")
+                conn.commit()
     except Exception as e:
-        print(f"Skipped column auto-migration (expected if using SQLite): {e}")
+        print(f"Skipped column auto-migration: {e}")
     
     # 2. Seed default analyst user
     db = SessionLocal()
@@ -85,6 +99,21 @@ app.add_middleware(
 )
 
 # Mount REST endpoints
+import traceback
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    print(f"Global exception: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": str(exc),
+            "traceback": traceback.format_exc()
+        }
+    )
+
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(attacks.router, prefix="/api/v1")
 app.include_router(threat_feed.router, prefix="/api/v1")
