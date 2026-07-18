@@ -25,6 +25,20 @@ async def lifespan(app: FastAPI):
     # 1. Create DB tables if they don't exist
     Base.metadata.create_all(bind=engine)
     
+    # 1.5 Add missing columns to 'attacks' table safely (fixes 500 error on remote Postgres)
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS source_type VARCHAR(50) DEFAULT 'INTELLIGENCE';"))
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS event_classification VARCHAR(80) DEFAULT 'LIVE_INTELLIGENCE';"))
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS sensor_id VARCHAR(64);"))
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS is_confirmed_india_target BOOLEAN DEFAULT FALSE;"))
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS indicator_type VARCHAR(50) DEFAULT 'ip';"))
+            conn.execute(text("ALTER TABLE attacks ADD COLUMN IF NOT EXISTS raw_event_reference VARCHAR(500);"))
+            conn.commit()
+    except Exception as e:
+        print(f"Skipped column auto-migration (expected if using SQLite): {e}")
+    
     # 2. Seed default analyst user
     db = SessionLocal()
     try:
