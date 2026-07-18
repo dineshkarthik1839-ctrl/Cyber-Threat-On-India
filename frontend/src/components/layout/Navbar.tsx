@@ -5,8 +5,10 @@ import { getSessionUser, logoutAnalyst } from "../../services/authService";
 
 export default function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { email, role } = getSessionUser();
-  const initials = email ? email.substring(0, 2).toUpperCase() : "AN";
-  const displayName = email ? email.split("@")[0] : "Analyst";
+  const isLoggedIn = !!email;
+  const initials = email ? email.substring(0, 2).toUpperCase() : "G";
+  const displayName = email ? email.split("@")[0] : "Guest Viewer";
+  const displayRole = role || "Public Access";
   const location = useLocation();
 
   // Live clock
@@ -103,20 +105,22 @@ export default function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
           </div>
           <div className="hide-on-mobile">
             <div style={{ fontSize: 12, fontWeight: 650, color: "#e2effc" }}>{displayName}</div>
-            <div style={{ fontSize: 9, color: "#8190a6", textTransform: "uppercase" }}>{role}</div>
+            <div style={{ fontSize: 9, color: "#8190a6", textTransform: "uppercase" }}>{displayRole}</div>
           </div>
         </div>
 
-        <button
-          onClick={logoutAnalyst}
-          title="Sign out securely"
-          className="btn-ghost"
-          style={{ marginLeft: 4, color: "#8190a6" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#ff6374")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#8190a6")}
-        >
-          <FaSignOutAlt size={16} />
-        </button>
+        {isLoggedIn && (
+          <button
+            onClick={logoutAnalyst}
+            title="Sign out securely"
+            className="btn-ghost"
+            style={{ marginLeft: 4, color: "#8190a6" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#ff6374")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#8190a6")}
+          >
+            <FaSignOutAlt size={16} />
+          </button>
+        )}
       </div>
     </header>
   );

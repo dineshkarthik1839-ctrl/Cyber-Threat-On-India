@@ -4,7 +4,6 @@ from typing import Optional
 
 from app.database.dependencies import get_db
 from app.models.attack import Attack
-from app.services.security import get_current_user
 from app.models.user import User
 
 router = APIRouter(prefix="/ioc", tags=["Indicator Enrichment"])
@@ -12,8 +11,7 @@ router = APIRouter(prefix="/ioc", tags=["Indicator Enrichment"])
 @router.get("/lookup")
 def lookup_ioc(
     indicator: str = Query(..., description="IP, domain, URL, CVE or hash to lookup"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """Enrich a threat indicator using normalized intelligence database."""
     indicator_stripped = indicator.strip()

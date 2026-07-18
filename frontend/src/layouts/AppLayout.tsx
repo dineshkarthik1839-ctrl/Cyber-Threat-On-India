@@ -9,9 +9,7 @@ export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth < 1200);
   const location = useLocation();
 
-  if (!hasActiveSession()) {
-    return <Navigate to="/login" replace />;
-  }
+
 
   return (
     <div className="app-shell" style={{ display: "flex", minHeight: "100vh" }}>

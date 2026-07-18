@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaGlobeAsia, FaSearch, FaCog, FaShieldAlt, FaSatelliteDish, FaFileAlt, FaBars, FaChevronLeft } from "react-icons/fa";
 import { NavLink, useLocation } from "react-router-dom";
+import { hasActiveSession } from "../../services/authService";
 
 const nav = [
   { to: "/dashboard", label: "Command Center", icon: FaSatelliteDish, shortcut: "D" },
@@ -151,7 +152,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Navigation Items */}
       <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-        {nav.map(({ to, label, icon: Icon }, idx) => {
+        {nav
+          .filter(item => item.to !== "/settings" || hasActiveSession())
+          .map(({ to, label, icon: Icon }, idx) => {
           const isActive = location.pathname === to;
           const isHovered = hoveredIdx === idx;
 

@@ -7,7 +7,7 @@ from datetime import datetime
 
 from app.database.dependencies import get_db
 from app.crud.attack import get_attacks_filtered
-from app.services.security import get_current_user
+from app.schemas.attack import AttackResponse
 from app.models.user import User
 
 router = APIRouter(prefix="/reports", tags=["Reporting & Export"])
@@ -18,8 +18,7 @@ def export_threats(
     severity: str = Query(default="All"),
     source: str = Query(default="All"),
     query: str = Query(default=""),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """Export normalized threat intelligence records (requires active analyst session)."""
     # Fetch filtered threats (max 500 for export)
