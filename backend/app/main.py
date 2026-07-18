@@ -30,25 +30,19 @@ async def lifespan(app: FastAPI):
     try:
         inspector = inspect(engine)
         if inspector.has_table("attacks"):
-            columns = [col['name'] for col in inspector.get_columns("attacks")]
-            
-            new_columns = [
-                ("event_uuid", "VARCHAR(64)"),
-                ("source_type", "VARCHAR(50) DEFAULT 'INTELLIGENCE'"),
-                ("event_classification", "VARCHAR(80) DEFAULT 'LIVE_INTELLIGENCE'"),
-                ("sensor_id", "VARCHAR(64)"),
-                ("is_confirmed_india_target", "BOOLEAN DEFAULT FALSE"),
-                ("indicator_type", "VARCHAR(50) DEFAULT 'ip'"),
-                ("raw_event_reference", "VARCHAR(500)")
-            ]
+            existing_columns = {col['name'] for col in inspector.get_columns("attacks")}
+            from app.models.attack import Attack
             
             with engine.connect() as conn:
-                for col_name, col_type in new_columns:
-                    if col_name not in columns:
+                for column in Attack.__table__.columns:
+                    if column.name not in existing_columns:
                         try:
-                            conn.execute(text(f"ALTER TABLE attacks ADD COLUMN {col_name} {col_type};"))
+                            # Compile column type for the current dialect (e.g. VARCHAR(64))
+                            col_type = column.type.compile(engine.dialect)
+                            conn.execute(text(f"ALTER TABLE attacks ADD COLUMN {column.name} {col_type};"))
+                            print(f"Auto-migrated column: {column.name}")
                         except Exception as e:
-                            print(f"Warning: Failed to add column {col_name}: {e}")
+                            print(f"Warning: Failed to add column {column.name}: {e}")
                 conn.commit()
     except Exception as e:
         print(f"Skipped column auto-migration: {e}")
