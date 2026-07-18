@@ -75,7 +75,7 @@ export default function IndiaView() {
         State-level incident density mapping. Focus defense monitoring on identified clusters.
       </p>
       
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 0.8fr", gap: 20 }}>
+      <div className="dashboard-grid" style={{ marginTop: 0 }}>
         {/* Heatmap Map panel */}
         <div
           className="panel"
