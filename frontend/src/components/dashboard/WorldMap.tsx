@@ -347,7 +347,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               opacity: p.status === "animating" ? 0.4 : 0.1
             }}
           >
-            <Tooltip sticky>
+            <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Attacker:</strong> {p.sourceIp} <br />
                 <strong>Origin:</strong> {p.originName} <br />

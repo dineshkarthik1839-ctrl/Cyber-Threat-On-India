@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
-import { hasActiveSession } from "../services/authService";
+
 
 export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth < 1200);
