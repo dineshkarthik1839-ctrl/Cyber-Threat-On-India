@@ -320,12 +320,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             display: none !important;
           }
           .leaflet-tooltip {
-            background: rgba(10, 15, 26, 0.95);
-            border: 1px solid #1a8dd0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-            color: #ffffff;
-            border-radius: 6px;
-            padding: 8px 12px;
+            background: rgba(10, 15, 26, 0.95) !important;
+            border: 1px solid #1a8dd0 !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
+            color: #ffffff !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
           }
           .empty-icon {
             display: none;
@@ -348,7 +348,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             }}
           >
             <Tooltip sticky>
-              <div style={{ fontSize: 10 }}>
+              <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Attacker:</strong> {p.sourceIp} <br />
                 <strong>Origin:</strong> {p.originName} <br />
                 <strong>Target:</strong> {p.targetName} <br />
@@ -386,7 +386,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             }}
           >
             <Tooltip>
-              <div style={{ fontSize: 10 }}>
+              <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Origin:</strong> {p.originName} <br />
                 <strong>IP:</strong> {p.sourceIp}
               </div>
@@ -408,7 +408,7 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
             }}
           >
             <Tooltip>
-              <div style={{ fontSize: 10 }}>
+              <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
                 <strong>Destination:</strong> {getCityForState(p.targetName)}, {p.targetName} <br />
                 <strong>Threat Vector:</strong> {p.attackType}
               </div>
