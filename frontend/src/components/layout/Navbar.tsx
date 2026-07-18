@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { FaBell, FaSignOutAlt } from "react-icons/fa";
+import { FaBell, FaSignOutAlt, FaBars } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import { getSessionUser, logoutAnalyst } from "../../services/authService";
 
-export default function Navbar() {
+export default function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { email, role } = getSessionUser();
   const initials = email ? email.substring(0, 2).toUpperCase() : "AN";
   const displayName = email ? email.split("@")[0] : "Analyst";
@@ -46,8 +46,17 @@ export default function Navbar() {
         zIndex: 100
       }}
     >
-      <div>
-        <div className="eyebrow" style={{ fontSize: 9 }}>India Cyber Threat Intelligence Platform</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <button 
+          className="btn-ghost hide-on-desktop" 
+          onClick={onMenuToggle}
+          style={{ padding: 0, marginRight: 8 }}
+        >
+          <FaBars size={20} color="#e2effc" />
+        </button>
+        <div>
+          <div className="eyebrow hide-on-mobile" style={{ fontSize: 9 }}>India Cyber Threat Intelligence Platform</div>
+          <div className="eyebrow hide-on-desktop" style={{ fontSize: 9 }}>ICTIP</div>
         <div style={{ fontSize: 12, color: "#aab8c9", marginTop: 4, display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ color: "#8190a6" }}>ICTIP</span>
           <span style={{ color: "#485b73", fontSize: 10 }}>/</span>
@@ -57,9 +66,10 @@ export default function Navbar() {
           </span>
         </div>
       </div>
+      </div>
 
       {/* Live IST Clock */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div className="hide-on-mobile" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 700, color: "#36d8a5", letterSpacing: "0.08em" }}>
           {timeStr}
         </div>
@@ -91,7 +101,7 @@ export default function Navbar() {
           >
             {initials}
           </div>
-          <div>
+          <div className="hide-on-mobile">
             <div style={{ fontSize: 12, fontWeight: 650, color: "#e2effc" }}>{displayName}</div>
             <div style={{ fontSize: 9, color: "#8190a6", textTransform: "uppercase" }}>{role}</div>
           </div>

@@ -42,7 +42,7 @@ export default function ThreatMapPage() {
   };
 
   return (
-    <div className="page page-enter" style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 40px)", paddingBottom: 20, width: "100%" }}>
+    <div className="page page-enter" style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 40px)", paddingBottom: 20, width: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
           <div className="eyebrow">Visualization</div>
@@ -64,7 +64,7 @@ export default function ThreatMapPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr 300px", gap: 24, flex: 1, width: "100%" }}>
+      <div className="threat-map-grid">
         {/* Left Side Panel: Threat Graph (Timeline) */}
         <div className="panel" style={{ padding: 20, display: "flex", flexDirection: "column" }}>
           <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 700, color: "#e2effc" }}>Attack Velocity</h3>

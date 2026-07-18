@@ -6,7 +6,7 @@ import Sidebar from "../components/layout/Sidebar";
 import { hasActiveSession } from "../services/authService";
 
 export default function AppLayout() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth < 1200);
   const location = useLocation();
 
   if (!hasActiveSession()) {
@@ -17,7 +17,7 @@ export default function AppLayout() {
     <div className="app-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
       <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`} style={{ flex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <Navbar />
+        <Navbar onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

@@ -176,7 +176,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "0.65fr 1.0fr 1.0fr", gap: 20, marginTop: 20 }}>
+      <div className="three-col-grid">
         {/* Live Threat Log */}
         <div className="panel" style={{ padding: 18 }}>
           <h2 className="section-title">Live Ticker</h2>

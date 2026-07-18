@@ -35,6 +35,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <aside
+      className={`sidebar ${!collapsed ? "mobile-open" : ""}`}
       style={{
         position: "fixed",
         inset: "0 auto 0 0",
