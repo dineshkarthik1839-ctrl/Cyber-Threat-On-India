@@ -19,7 +19,7 @@ from app.services.telemetry_generator import run_telemetry_simulator
 from app.services.websocket_manager import manager
 
 # Import routers
-from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst
+from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst, investigations
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -75,7 +75,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(attacks.router, prefix="/api/v1")
 app.include_router(threat_feed.router, prefix="/api/v1")
-app.include_router(settings.router, prefix="/api/v1")
+app.include_router(settings.router, prefix="/api/v1/settings", tags=["settings"])
+app.include_router(investigations.router, prefix="/api/v1/investigations", tags=["investigations"])
 app.include_router(ioc.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
 app.include_router(ai_analyst.router, prefix="/api/v1")

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimes, FaShieldAlt, FaMapMarkerAlt, FaCrosshairs, FaNetworkWired, FaUserSecret } from "react-icons/fa";
+import { FaTimes, FaShieldAlt, FaMapMarkerAlt, FaCrosshairs, FaNetworkWired, FaUserSecret, FaSearchPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import type { Threat } from "../../types/threat";
 
 interface ThreatDetailsDrawerProps {
@@ -55,6 +56,7 @@ const getRiskScore = (severity: string, confidence: number): number => {
 };
 
 export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDrawerProps) {
+  const navigate = useNavigate();
   if (!threat) return null;
 
   const isConfirmed = threat.targetState.includes("Confirmed") || threat.id.includes("sim") || threat.id.includes("demo");
@@ -224,9 +226,20 @@ export default function ThreatDetailsDrawer({ threat, onClose }: ThreatDetailsDr
           </div>
           
           {/* Footer Action */}
-          <div style={{ padding: "16px 24px", borderTop: "1px solid #1a2d45", background: "rgba(26, 45, 69, 0.4)" }}>
-            <button style={{ width: "100%", background: "#167bb8", color: "#fff", border: "none", padding: "12px", borderRadius: 8, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "#1a8dd0"} onMouseOut={e => e.currentTarget.style.background = "#167bb8"}>
-              Export Incident Report (PDF)
+          <div style={{ padding: "16px 24px", borderTop: "1px solid #1a2d45", background: "rgba(26, 45, 69, 0.4)", display: "flex", gap: 12 }}>
+            <button 
+              onClick={() => {
+                onClose();
+                navigate(`/investigation/${threat.id}`);
+              }}
+              style={{ flex: 1, background: "#5ac2f0", color: "#09121f", border: "none", padding: "12px", borderRadius: 8, fontWeight: 700, cursor: "pointer", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} 
+              onMouseOver={e => e.currentTarget.style.background = "#3ab7f5"} 
+              onMouseOut={e => e.currentTarget.style.background = "#5ac2f0"}
+            >
+              <FaSearchPlus /> Investigate
+            </button>
+            <button style={{ flex: 1, background: "#167bb8", color: "#fff", border: "none", padding: "12px", borderRadius: 8, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "#1a8dd0"} onMouseOut={e => e.currentTarget.style.background = "#167bb8"}>
+              Export Report
             </button>
           </div>
         </motion.div>

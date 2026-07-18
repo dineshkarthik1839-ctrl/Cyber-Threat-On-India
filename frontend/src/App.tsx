@@ -8,6 +8,7 @@ import Settings from "./pages/Settings";
 import ThreatFeed from "./pages/ThreatFeed";
 import Reports from "./pages/Reports";
 import ThreatMapPage from "./pages/ThreatMapPage";
+import InvestigationView from "./pages/InvestigationView";
 import { ThreatDetailsProvider } from "./contexts/ThreatDetailsContext";
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/threat-map" element={<ThreatMapPage />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/investigation/:eventId" element={<InvestigationView />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
