@@ -38,5 +38,15 @@ export const investigationService = {
   addNote: async (id: number, content: string): Promise<InvestigationNote> => {
     const response = await api.post(`/investigations/${id}/notes`, { content });
     return response.data;
+  },
+
+  getIocs: async (id: number): Promise<any[]> => {
+    const response = await api.get(`/investigations/${id}/iocs`);
+    return response.data;
+  },
+
+  getTimeline: async (id: number): Promise<any[]> => {
+    const response = await api.get(`/investigations/${id}/timeline`);
+    return response.data;
   }
 };

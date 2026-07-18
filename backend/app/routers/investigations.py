@@ -74,3 +74,69 @@ def add_note(investigation_id: int, note_in: InvestigationNoteCreate, db: Sessio
     db.commit()
     db.refresh(db_note)
     return db_note
+
+@router.get("/{investigation_id}/iocs", response_model=list[dict])
+def get_investigation_iocs(investigation_id: int, db: Session = Depends(get_db)):
+    investigation = db.query(Investigation).filter(Investigation.id == investigation_id).first()
+    if not investigation:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+        
+    # Get other attacks with the same indicator
+    related_attacks = db.query(Attack).filter(
+        Attack.indicator == investigation.attack.indicator,
+        Attack.id != investigation.attack_id
+    ).order_by(Attack.timestamp.desc()).limit(10).all()
+    
+    return [
+        {
+            "id": a.id,
+            "indicator": a.indicator,
+            "type": a.indicator_type,
+            "timestamp": a.timestamp.isoformat(),
+            "target": a.target_state,
+            "severity": a.severity,
+            "source": a.source
+        } for a in related_attacks
+    ]
+
+@router.get("/{investigation_id}/timeline", response_model=list[dict])
+def get_investigation_timeline(investigation_id: int, db: Session = Depends(get_db)):
+    investigation = db.query(Investigation).filter(Investigation.id == investigation_id).first()
+    if not investigation:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    
+    timeline = []
+    
+    # 1. Initial Attack Detection
+    timeline.append({
+        "type": "DETECTION",
+        "timestamp": investigation.attack.timestamp.isoformat(),
+        "title": "Critical Threat Detected",
+        "description": f"Initial event ingested from {investigation.attack.source} indicating {investigation.attack.attack_type}.",
+        "author": "System"
+    })
+    
+    # 2. AI Analysis (if present)
+    if investigation.ai_analysis:
+        timeline.append({
+            "type": "AI_ANALYSIS",
+            "timestamp": investigation.created_at.isoformat(),
+            "title": "AI Analysis Completed",
+            "description": f"Risk score calculated based on {investigation.attack.attack_type} patterns.",
+            "author": "AI Engine"
+        })
+        
+    # 3. Analyst Notes
+    for note in investigation.notes:
+        timeline.append({
+            "type": "NOTE",
+            "timestamp": note.timestamp.isoformat(),
+            "title": "Analyst Note",
+            "description": note.content,
+            "author": note.author
+        })
+        
+    # Sort timeline by timestamp ascending
+    timeline.sort(key=lambda x: x["timestamp"])
+    
+    return timeline
