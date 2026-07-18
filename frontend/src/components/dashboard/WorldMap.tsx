@@ -1,6 +1,7 @@
 import { useState, useEffect, type ComponentType } from "react";
 import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip } from "react-leaflet";
 import type { Threat } from "../../types/threat";
+import { useThreatDetails } from "../../contexts/ThreatDetailsContext";
 
 const Map = MapContainer as unknown as ComponentType<Record<string, unknown>>;
 const Dot = CircleMarker as unknown as ComponentType<Record<string, unknown>>;
@@ -244,6 +245,7 @@ interface WorldMapProps {
 }
 
 export default function WorldMap({ threats, isDemo }: WorldMapProps) {
+  const { openDrawer } = useThreatDetails();
   const [activePaths, setActivePaths] = useState<ActivePath[]>([]);
   const [ripples, setRipples] = useState<{ id: string; center: Point; color: string }[]>([]);
   const [historicalPoints, setHistoricalPoints] = useState<HistoricalPoint[]>([]);
@@ -366,6 +368,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 8,
               opacity: p.status === "animating" ? 0.4 : 0.1
             }}
+            eventHandlers={{
+              click: () => {
+                const threat = threats.find(t => t.id === p.id);
+                if (threat) openDrawer(threat);
+              }
+            }}
           >
             <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
@@ -388,6 +396,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               weight: 3.5,
               opacity: p.status === "animating" ? 1.0 : 0.3,
               dashArray: p.status === "animating" ? "8 6" : undefined
+            }}
+            eventHandlers={{
+              click: () => {
+                const threat = threats.find(t => t.id === p.id);
+                if (threat) openDrawer(threat);
+              }
             }}
           />
         ))}
@@ -425,6 +439,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               fillColor: p.color,
               fillOpacity: 0.35,
               weight: 1.0
+            }}
+            eventHandlers={{
+              click: () => {
+                const threat = threats.find(t => t.id === p.id);
+                if (threat) openDrawer(threat);
+              }
             }}
           >
             <Tooltip>
@@ -472,6 +492,12 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
               fillOpacity: 0.85,
               weight: 0
             }}
+            eventHandlers={{
+              click: () => {
+                const threat = threats.find(t => t.id === hp.id);
+                if (threat) openDrawer(threat);
+              }
+            }}
           >
             <Tooltip>
               <div style={{ fontSize: 11, color: "#ffffff", textShadow: "0px 1px 3px rgba(0,0,0,0.8)" }}>
@@ -486,6 +512,33 @@ export default function WorldMap({ threats, isDemo }: WorldMapProps) {
       
       <div className="map-status" style={{ border: "1px solid #14324f", background: "#050e18f2" }}>
         <span /> {isDemo ? "DEMO INDIA TELEMETRY" : "LIVE SOC INGRESS STREAM"} · {threats.length} ACTIVE PATHS
+      </div>
+      
+      {/* Map Legend Overlay */}
+      <div style={{ position: "absolute", zIndex: 500, right: 16, bottom: 15, background: "rgba(10, 15, 26, 0.8)", border: "1px solid #1a2d45", padding: "10px 14px", borderRadius: 8, backdropFilter: "blur(8px)", fontSize: 10, color: "#cbd5e1" }}>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: "#f0f6fc", fontSize: 11 }}>THREAT LEGEND</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff6374" }}></span> Critical
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#fb8b32" }}></span> High
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#f5d35f" }}></span> Medium
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#50d7a9" }}></span> Low
+          </div>
+        </div>
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #1a2d45", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 2, background: "#ff6374" }}></span> Confirmed Attack
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 2, borderBottom: "2px dashed #9bacc0" }}></span> Intelligence Stream
+          </div>
+        </div>
       </div>
       
       {!threats.length && (

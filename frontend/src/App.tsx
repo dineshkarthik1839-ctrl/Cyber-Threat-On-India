@@ -8,21 +8,24 @@ import Settings from "./pages/Settings";
 import ThreatFeed from "./pages/ThreatFeed";
 import Reports from "./pages/Reports";
 import ThreatMapPage from "./pages/ThreatMapPage";
+import { ThreatDetailsProvider } from "./contexts/ThreatDetailsContext";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route element={<AppLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/threat-feed" element={<ThreatFeed />} />
-        <Route path="/india" element={<IndiaView />} />
-        <Route path="/ioc-search" element={<IocSearch />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/threat-map" element={<ThreatMapPage />} />
-        <Route path="/settings" element={<Settings />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+    <ThreatDetailsProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/threat-feed" element={<ThreatFeed />} />
+          <Route path="/india" element={<IndiaView />} />
+          <Route path="/ioc-search" element={<IocSearch />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/threat-map" element={<ThreatMapPage />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </ThreatDetailsProvider>
   );
 }

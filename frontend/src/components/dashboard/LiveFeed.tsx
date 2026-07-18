@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { Threat } from "../../types/threat";
 import { FaShieldAlt, FaMapMarkerAlt, FaCrosshairs } from "react-icons/fa";
+import { useThreatDetails } from "../../contexts/ThreatDetailsContext";
 
 interface LiveFeedProps {
   threats: Threat[];
@@ -16,6 +17,8 @@ function countryFlag(code: string): string {
 }
 
 export default function LiveFeed({ threats }: LiveFeedProps) {
+  const { openDrawer } = useThreatDetails();
+
   const getSeverityStyle = (severity: string) => {
     const sev = severity.toLowerCase();
     if (sev === "critical") return { color: "#ff6374", bg: "rgba(255, 99, 116, 0.08)" };
@@ -61,8 +64,12 @@ export default function LiveFeed({ threats }: LiveFeedProps) {
                   boxShadow: `0 4px 15px rgba(0,0,0,0.3), inset 0 0 20px ${styles.color}05`,
                   position: "relative",
                   overflow: "hidden",
-                  backdropFilter: "blur(8px)"
+                  backdropFilter: "blur(8px)",
+                  cursor: "pointer"
                 }}
+                onClick={() => openDrawer(threat)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 {/* Background Glow */}
                 <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 100, background: `radial-gradient(circle at right, ${styles.color}15 0%, transparent 70%)`, pointerEvents: "none" }} />
