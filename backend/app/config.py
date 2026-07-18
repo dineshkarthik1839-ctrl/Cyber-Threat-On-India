@@ -8,7 +8,7 @@ ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")
 OTX_API_KEY = os.getenv("OTX_API_KEY", "")
 CORS_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,https://cyber-threat-on-india.vercel.app").split(",")
     if origin.strip()
 ]
 APP_ENV = os.getenv("APP_ENV", "development")
