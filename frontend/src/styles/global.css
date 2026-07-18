@@ -51,7 +51,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 /* ─── Page Container ─── */
-.page { padding: 26px 30px 36px; max-width: 1800px; margin: auto; }
+.page { padding: 24px 20px 36px; width: 100%; max-width: 100%; margin: 0; }
 
 /* ─── Typography Utilities ─── */
 .eyebrow {
