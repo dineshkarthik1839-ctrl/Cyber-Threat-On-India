@@ -1,4 +1,4 @@
-# India Cyber Threat Intelligence Platform (ICTIP)
+# India Cyber Threat Intelligence Platform (ICTIP) : https://cyber-threat-on-india.vercel.app/
 
 ## 1. Purpose and Vision
 The core objective of ICTIP is to provide a dedicated, real-time Security Operations Center (SOC) dashboard that monitors, visualizes, and analyzes cyber threats specifically targeting Indian digital infrastructure. It bridges the gap between raw threat intelligence data and actionable security insights, allowing analysts to detect anomalies and investigate attacks instantly.
