@@ -117,6 +117,7 @@ app.include_router(ioc.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
 app.include_router(ai_analyst.router, prefix="/api/v1")
 app.include_router(sensors.router, prefix="/api/v1")
+app.include_router(scanner.router, prefix="/api/v1")
 
 @app.get("/health", tags=["Operations"])
 def health():

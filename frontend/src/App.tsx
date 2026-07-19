@@ -9,6 +9,7 @@ import ThreatFeed from "./pages/ThreatFeed";
 import Reports from "./pages/Reports";
 import ThreatMapPage from "./pages/ThreatMapPage";
 import InvestigationView from "./pages/InvestigationView";
+import WebsiteAnalyzer from "./pages/WebsiteAnalyzer";
 import { ThreatDetailsProvider } from "./contexts/ThreatDetailsContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/ioc-search" element={<IocSearch />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/threat-map" element={<ThreatMapPage />} />
+          <Route path="/analyze" element={<ProtectedRoute><WebsiteAnalyzer /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/investigation/:eventId" element={<ProtectedRoute><InvestigationView /></ProtectedRoute>} />
         </Route>

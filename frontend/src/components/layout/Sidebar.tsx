@@ -9,6 +9,7 @@ const nav = [
   { to: "/india", label: "India View", icon: FaGlobeAsia, shortcut: "I" },
   { to: "/threat-map", label: "Threat Map", icon: FaGlobeAsia, shortcut: "M" },
   { to: "/ioc-search", label: "IOC Search", icon: FaSearch, shortcut: "S" },
+  { to: "/analyze", label: "Website Analyzer", icon: FaGlobeAsia, shortcut: "W" },
   { to: "/reports", label: "Reports", icon: FaFileAlt, shortcut: "R" },
   { to: "/settings", label: "Settings", icon: FaCog, shortcut: "G" }
 ];
