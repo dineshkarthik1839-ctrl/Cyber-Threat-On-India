@@ -38,7 +38,7 @@ async def analyze_website_domain(
             
     # Fetch API Key from settings
     settings = get_collector_settings(db)
-    otx_key = settings.otx_api_key if settings else None
+    otx_key = settings.otx_key if settings else None
     
     try:
         scan_results = await analyze_domain(domain, otx_key)

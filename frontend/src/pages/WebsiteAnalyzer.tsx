@@ -28,7 +28,24 @@ export default function WebsiteAnalyzer() {
       setResult(data);
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.detail || "Failed to analyze domain. The backend may be offline or the domain is invalid.");
+      
+      let errorMessage = "Analysis failed. Please try again later.";
+      
+      if (!err.response) {
+        errorMessage = "Backend unavailable. The server is offline or unreachable.";
+      } else if (err.response.status === 404) {
+        errorMessage = "Analysis endpoint not found. The backend API is not responding at the expected route.";
+      } else if (err.response.status === 400) {
+        errorMessage = err.response.data?.detail || "Invalid domain provided.";
+      } else if (err.response.status === 401) {
+        errorMessage = "Unauthorized. Please log in again.";
+      } else if (err.response.data && typeof err.response.data === 'string' && err.response.data.includes("Not Found")) {
+        errorMessage = "Analysis endpoint not found (Server returned 404 text).";
+      } else if (err.response.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
