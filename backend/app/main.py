@@ -19,7 +19,7 @@ from app.services.telemetry_generator import run_telemetry_simulator
 from app.services.websocket_manager import manager
 
 # Import routers
-from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst, investigations, sensors
+from app.routers import attacks, threat_feed, auth, settings, ioc, reports, ai_analyst, investigations, sensors, scanner
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 1. Create DB tables if they don't exist
