@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Any
 
-from app.database.database import get_db
+from app.database.dependencies import get_db
 from app.services.security import get_current_user
 from app.models.user import User
 from app.models.scan import DomainScan

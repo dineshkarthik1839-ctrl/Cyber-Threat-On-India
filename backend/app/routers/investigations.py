@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.database import SessionLocal
+from app.database.dependencies import get_db
 from app.models.investigation import Investigation, InvestigationNote
 from app.models.attack import Attack
 from app.schemas.investigation import (
@@ -13,12 +14,7 @@ from app.schemas.investigation import (
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 @router.get("/{investigation_id}", response_model=InvestigationResponse)
 def get_investigation(investigation_id: int, db: Session = Depends(get_db)):
