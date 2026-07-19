@@ -11,17 +11,23 @@ from app.models.scan import DomainScan
 from app.services.scanner import analyze_domain
 from app.crud.settings import get_collector_settings
 
+from pydantic import BaseModel
+
+class AnalyzeRequest(BaseModel):
+    url: str
+    force: bool = False
+
 router = APIRouter(tags=["scanner"])
 
-@router.get("/analyze/domain")
+@router.post("/analyze/domain")
 async def analyze_website_domain(
-    url: str = Query(..., description="Domain or URL to analyze"),
-    force: bool = Query(False, description="Force a new scan instead of using cache"),
+    request: AnalyzeRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ) -> Any:
     # Normalize domain
-    domain = url.lower().replace("http://", "").replace("https://", "").split("/")[0]
+    domain = request.url.lower().replace("http://", "").replace("https://", "").split("/")[0]
+    force = request.force
     
     if not domain:
         raise HTTPException(status_code=400, detail="Invalid domain provided")
