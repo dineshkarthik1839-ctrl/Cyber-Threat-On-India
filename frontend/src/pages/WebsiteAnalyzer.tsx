@@ -6,8 +6,8 @@ import {
   FaCheckCircle, FaTimesCircle, FaCrosshairs
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { analyzeDomain } from "../../services/scannerService";
-import type { DomainScanResult } from "../../types/scanner";
+import { analyzeDomain } from "../services/scannerService";
+import type { DomainScanResult } from "../types/scanner";
 
 export default function WebsiteAnalyzer() {
   const [domain, setDomain] = useState("");
@@ -132,7 +132,7 @@ export default function WebsiteAnalyzer() {
                     <div>
                       <div className="muted" style={{ fontSize: 12, marginBottom: 4 }}>RESOLVED IPs</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                        {result.ip_addresses.length > 0 ? result.ip_addresses.map(ip => (
+                        {result.ip_addresses.length > 0 ? result.ip_addresses.map((ip: string) => (
                           <span key={ip} style={{ padding: "2px 8px", background: "rgba(14, 165, 233, 0.1)", borderRadius: 4, fontSize: 13 }}>{ip}</span>
                         )) : <span className="muted">No public IPs</span>}
                       </div>
