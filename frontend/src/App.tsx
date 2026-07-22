@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
-import { Dashboard } from "./components/dashboard/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import IndiaView from "./pages/IndiaView";
 import IocSearch from "./pages/IocSearch";
 import Login from "./pages/Login";
