@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { Threat } from '../../types/threat';
+import type { Threat } from '../../types/threat';
 
 interface ThreatGlobeProps {
   threats: Threat[];
