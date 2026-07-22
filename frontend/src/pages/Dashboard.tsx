@@ -3,7 +3,7 @@ import { FaSyncAlt } from "react-icons/fa";
 import AttackCounter from "../components/dashboard/AttackCounter";
 import LiveFeed from "../components/dashboard/LiveFeed";
 import Timeline from "../components/dashboard/Timeline";
-import { ThreatGlobe } from "../components/Globe/ThreatGlobe";
+import WorldMap from "../components/dashboard/WorldMap";
 import AIInsight from "../components/dashboard/AIInsight";
 import AttackTicker from "../components/dashboard/AttackTicker";
 import TopVectors from "../components/dashboard/TopVectors";
@@ -203,7 +203,7 @@ export default function Dashboard() {
           {/* Map canvas container with relative controls overlays */}
           <div style={{ flex: 1, position: "relative", height: isFullscreen ? "calc(100vh - 90px)" : "auto" }}>
             <div style={{ height: isFullscreen ? "100%" : "490px", borderRadius: 12, overflow: "hidden", border: "1px solid #142842" }}>
-              <ThreatGlobe threats={threats} autoRotate={true} />
+              <WorldMap threats={threats} isDemo={isDemo} />
             </div>
           </div>
         </div>
