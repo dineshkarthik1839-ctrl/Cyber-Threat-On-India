@@ -1,45 +1,285 @@
+version: '3.8'
+
 services:
-  db:
+  # DATABASE SERVICES
+  postgres:
     image: postgres:15-alpine
-    container_name: ictip-db
+    container_name: ictip-postgres
     environment:
       POSTGRES_DB: ictip
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres_password_2026
+      POSTGRES_USER: ictip_user
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - ictip-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ictip"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ictip_user"]
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
+  # CACHE SERVICES
+  redis:
+    image: redis:7-alpine
+    container_name: ictip-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --save 900 1 --save 300 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - ictip-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: ictip-redisinsight
+    ports:
+      - "5540:5540"
+    networks:
+      - ictip-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # MESSAGE QUEUE
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ictip-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ictip-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # BACKEND SERVICES
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ictip-api
-    env_file: .env
+    container_name: ictip-backend
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://ictip_user:secure_password@postgres:5432/ictip
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      CELERY_BROKER_URL: amqp://admin:admin123@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      ENVIRONMENT: development
+      DEBUG: true
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+      - /app/.pytest_cache
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-    restart: always
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ictip-network
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level debug"
+    restart: unless-stopped
 
+  # CELERY WORKERS
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ictip-celery
+    environment:
+      DATABASE_URL: postgresql://ictip_user:secure_password@postgres:5432/ictip
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CELERY_BROKER_URL: amqp://admin:admin123@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      CELERY_WORKER_CONCURRENCY: 4
+      CELERY_WORKER_MAX_TASKS_PER_CHILD: 100
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    depends_on:
+      - redis
+      - postgres
+      - rabbitmq
+    networks:
+      - ictip-network
+    command: >
+      celery -A celery_config worker 
+      --loglevel=info 
+      --concurrency=4 
+      --max-tasks-per-child=100 
+      --without-gossip 
+      --without-mingle 
+      --without-heartbeat
+    restart: unless-stopped
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ictip-celery-beat
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CELERY_BROKER_URL: amqp://admin:admin123@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - ictip-network
+    command: celery -A celery_config beat --loglevel=info --schedule=/app/celerybeat-schedule
+    restart: unless-stopped
+
+  # FRONTEND
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: ictip-web
+    container_name: ictip-frontend
     ports:
-      - "80:80"
+      - "3000:80"
+    environment:
+      VITE_API_URL: http://localhost:8000/api
+      VITE_WS_URL: ws://localhost:8000/ws
     depends_on:
       - backend
-    restart: always
+    networks:
+      - ictip-network
+    restart: unless-stopped
+
+  # MONITORING
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ictip-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - ictip-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ictip-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - ictip-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # TESTING
+  test_runner:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: ictip-test-runner
+    environment:
+      DATABASE_URL: postgresql://ictip_user:secure_password@postgres:5432/ictip_test
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      TESTING: true
+    volumes:
+      - ./backend:/app
+      - test_results:/app/test-results
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - ictip-network
+    command: pytest --cov=. --cov-report=html --cov-report=term --maxfail=5 -v
+    restart: "no"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: ictip-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - indices.query.bool.max_clause_count=1024
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ictip-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.0
+    container_name: ictip-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - ictip-network
+    depends_on:
+      - elasticsearch
+
+networks:
+  ictip-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  test_results:
+  elasticsearch_data:
