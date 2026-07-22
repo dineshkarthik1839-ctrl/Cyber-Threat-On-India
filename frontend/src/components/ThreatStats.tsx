@@ -1,5 +1,5 @@
 import React from 'react';
-import { Threat } from '../types';
+import type { Threat } from '../types/threat';
 
 export const ThreatStats: React.FC<{ threats: Threat[] }> = ({ threats }) => {
   const critical = threats.filter(t => t.severity === 'Critical').length;

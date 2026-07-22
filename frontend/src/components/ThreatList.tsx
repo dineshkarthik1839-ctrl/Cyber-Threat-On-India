@@ -1,5 +1,5 @@
 import React from 'react';
-import { Threat } from '../types';
+import type { Threat } from '../types/threat';
 
 interface ThreatListProps {
   threats: Threat[];
@@ -23,12 +23,12 @@ export const ThreatList: React.FC<ThreatListProps> = ({ threats, onSelect, selec
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <strong>{threat.source_ip || 'Unknown'}</strong>
+            <strong>{threat.sourceIp || 'Unknown'}</strong>
             <span style={{ color: threat.severity === 'Critical' ? '#ff4444' : '#ffaa00' }}>
               {threat.severity}
             </span>
           </div>
-          <div style={{ fontSize: '12px', color: '#aaa' }}>{threat.type || 'Unknown Type'}</div>
+          <div style={{ fontSize: '12px', color: '#aaa' }}>{threat.attackType || 'Unknown Type'}</div>
         </div>
       ))}
     </div>

@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ThreatGlobe } from '../Globe/ThreatGlobe';
 import { ThreatList } from '../ThreatList';
 import { ThreatStats } from '../ThreatStats';
 import { useThreatData } from '../../hooks/useThreatData';
 import { SearchBar } from '../Search/SearchBar';
+import type { Threat } from '../../types/threat';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
-  const { threats, loading, error } = useThreatData();
-  const [selectedThreat, setSelectedThreat] = useState(null);
+  const { threats } = useThreatData();
+  const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
 
   return (
     <div className="dashboard-container">
