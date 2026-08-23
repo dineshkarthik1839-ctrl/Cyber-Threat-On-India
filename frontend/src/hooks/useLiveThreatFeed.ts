@@ -72,6 +72,26 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
     // 2. Establish WebSocket stream connection
     let socket: WebSocket | null = null;
     let reconnectTimeoutId: number;
+    
+    // Batching mechanism to prevent UI freezing on rapid event streams
+    let eventBuffer: Threat[] = [];
+    const BATCH_INTERVAL_MS = 1000;
+    
+    const flushBuffer = () => {
+      if (eventBuffer.length === 0) return;
+      
+      const newEvents = [...eventBuffer];
+      eventBuffer = []; // clear buffer
+      
+      setItems((prev) => {
+        // Remove duplicates if any
+        const filtered = prev.filter((p) => !newEvents.some(ne => ne.id === p.id));
+        return [...newEvents, ...filtered].slice(0, 100);
+      });
+      setLastUpdated(new Date());
+    };
+    
+    const batchIntervalId = window.setInterval(flushBuffer, BATCH_INTERVAL_MS);
 
     function connectWebSocket() {
       const wsUrl = getWebSocketUrl();
@@ -118,12 +138,8 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
             sensor: data.sensor,
           };
 
-          setItems((prev) => {
-            // Keep list capped to prevent memory leaks in long-running dashboards
-            const filtered = prev.filter((p) => p.id !== newThreat.id);
-            return [newThreat, ...filtered].slice(0, 100);
-          });
-          setLastUpdated(new Date());
+          // Push to buffer instead of triggering immediate state update
+          eventBuffer.unshift(newThreat);
           
           if (data.source === "simulator") {
             setIsDemo(false); // Simulator counts as live local telemetry
@@ -156,6 +172,7 @@ export function useLiveThreatFeed(): LiveThreatFeedState {
 
     return () => {
       window.clearInterval(interval);
+      window.clearInterval(batchIntervalId);
       window.clearTimeout(reconnectTimeoutId);
       if (socket) {
         socket.onclose = null; // Prevent reconnect on explicit component unmount

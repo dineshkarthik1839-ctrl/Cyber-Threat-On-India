@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, Suspense, lazy } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import AttackCounter from "../components/dashboard/AttackCounter";
 import LiveFeed from "../components/dashboard/LiveFeed";
 import Timeline from "../components/dashboard/Timeline";
-import WorldMap from "../components/dashboard/WorldMap";
+
+const WorldMap = lazy(() => import("../components/dashboard/WorldMap"));
 import AIInsight from "../components/dashboard/AIInsight";
 import AttackTicker from "../components/dashboard/AttackTicker";
 import TopVectors from "../components/dashboard/TopVectors";
@@ -202,8 +203,15 @@ export default function Dashboard() {
 
           {/* Map canvas container with relative controls overlays */}
           <div style={{ flex: 1, position: "relative", height: isFullscreen ? "calc(100vh - 90px)" : "auto" }}>
-            <div style={{ height: isFullscreen ? "100%" : "490px", borderRadius: 12, overflow: "hidden", border: "1px solid #142842" }}>
-              <WorldMap threats={threats} isDemo={isDemo} />
+            <div style={{ height: isFullscreen ? "100%" : "490px", borderRadius: 12, overflow: "hidden", border: "1px solid #142842", position: "relative" }}>
+              <Suspense fallback={
+                <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#090f1b", color: "#8da5c4", gap: 16 }}>
+                  <div style={{ width: 40, height: 40, border: "3px solid rgba(26, 141, 208, 0.2)", borderTopColor: "#1a8dd0", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                  <div style={{ fontSize: 13, letterSpacing: 1, fontWeight: 600 }}>INITIALIZING GEOSPATIAL ENGINE...</div>
+                </div>
+              }>
+                <WorldMap threats={threats} isDemo={isDemo} />
+              </Suspense>
             </div>
           </div>
         </div>

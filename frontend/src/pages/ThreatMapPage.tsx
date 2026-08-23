@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import WorldMap from "../components/dashboard/WorldMap";
+import React, { useEffect, useState, Suspense, lazy } from "react";
+const WorldMap = lazy(() => import("../components/dashboard/WorldMap"));
 import { useLiveThreatFeed } from "../hooks/useLiveThreatFeed";
 import { FaSyncAlt, FaExpand } from "react-icons/fa";
 import Timeline from "../components/dashboard/Timeline";
@@ -78,7 +78,14 @@ export default function ThreatMapPage() {
         <div className="panel" style={{ padding: 20, display: "flex", flexDirection: "column" }}>
           <h3 style={{ margin: "0 0 16px 0", fontSize: 16, fontWeight: 700, color: "#e2effc" }}>Global Threat Map</h3>
           <div style={{ position: "relative", height: "calc(100vh - 220px)", minHeight: 600 }}>
-            <WorldMap threats={threats} isDemo={isDemo} />
+            <Suspense fallback={
+              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#090f1b", color: "#8da5c4", gap: 16 }}>
+                <div style={{ width: 40, height: 40, border: "3px solid rgba(26, 141, 208, 0.2)", borderTopColor: "#1a8dd0", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                <div style={{ fontSize: 13, letterSpacing: 1, fontWeight: 600 }}>INITIALIZING GEOSPATIAL ENGINE...</div>
+              </div>
+            }>
+              <WorldMap threats={threats} isDemo={isDemo} />
+            </Suspense>
           </div>
         </div>
 
