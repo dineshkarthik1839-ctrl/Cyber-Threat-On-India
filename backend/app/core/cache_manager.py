@@ -2,7 +2,7 @@ import functools
 import json
 import logging
 from typing import Callable, Any, Optional
-from app.core.redis_config import RedisManager
+from app.core.redis_config import redis_config
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ def cache_result(prefix: str, ttl: int = 300):
     def decorator(func: Callable):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-            client = RedisManager.get_client()
+            client = redis_config.get_client()
             if not client:
                 logger.warning("Redis client not available, bypassing cache.")
                 return await func(*args, **kwargs)
@@ -30,7 +30,7 @@ def cache_result(prefix: str, ttl: int = 300):
             cache_key = ":".join(key_parts)
             
             try:
-                cached_data = await client.get(cache_key)
+                cached_data = client.get(cache_key)
                 if cached_data:
                     logger.debug(f"Cache hit for {cache_key}")
                     return json.loads(cached_data)
@@ -49,7 +49,7 @@ def cache_result(prefix: str, ttl: int = 300):
                     else:
                         serialized = result
                     
-                    await client.setex(cache_key, ttl, json.dumps(serialized))
+                    client.setex(cache_key, ttl, json.dumps(serialized))
                     logger.debug(f"Cache set for {cache_key}")
                 except Exception as e:
                     logger.error(f"Redis set error on {cache_key}: {e}")
@@ -64,24 +64,24 @@ async def invalidate_cache(prefix: str, exact: bool = False):
     If exact=True, deletes only the key matching exactly.
     Otherwise, uses scan to delete all keys starting with prefix.
     """
-    client = RedisManager.get_client()
+    client = redis_config.get_client()
     if not client:
         return
         
     try:
         if exact:
-            await client.delete(prefix)
+            client.delete(prefix)
             logger.info(f"Invalidated exact cache key: {prefix}")
         else:
             cursor = '0'
             pattern = f"{prefix}*"
             keys_to_delete = []
             while cursor != 0:
-                cursor, keys = await client.scan(cursor=cursor, match=pattern, count=100)
+                cursor, keys = client.scan(cursor=cursor, match=pattern, count=100)
                 keys_to_delete.extend(keys)
             
             if keys_to_delete:
-                await client.delete(*keys_to_delete)
+                client.delete(*keys_to_delete)
                 logger.info(f"Invalidated {len(keys_to_delete)} cache keys matching pattern: {pattern}")
     except Exception as e:
         logger.error(f"Redis invalidate error on {prefix}: {e}")
