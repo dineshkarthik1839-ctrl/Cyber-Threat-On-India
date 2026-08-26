@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef, Suspense, lazy } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import AttackCounter from "../components/dashboard/AttackCounter";
 import LiveFeed from "../components/dashboard/LiveFeed";
-import Timeline from "../components/dashboard/Timeline";
+
+const Timeline = lazy(() => import("../components/dashboard/Timeline"));
 
 const WorldMap = lazy(() => import("../components/dashboard/WorldMap"));
 import AIInsight from "../components/dashboard/AIInsight";
@@ -233,7 +234,9 @@ export default function Dashboard() {
         <div className="panel" style={{ padding: 18 }}>
           <h2 className="section-title">Incident Velocity</h2>
           <p className="section-subtitle">24-hour event timeline distribution</p>
-          <Timeline data={timeline} />
+          <Suspense fallback={<div style={{ height: 280, display: "flex", alignItems: "center", justifyContent: "center", color: "#6a7b95", fontSize: 12 }}>Loading analytics chart...</div>}>
+            <Timeline data={timeline} />
+          </Suspense>
         </div>
 
         {/* Top Attack Vectors */}
