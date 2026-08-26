@@ -28,15 +28,17 @@ def start_scheduler():
         finally:
             db.close()
 
+        from datetime import datetime
         scheduler.add_job(
             fetch_job,
             "interval",
             minutes=interval,
             id="threat_collector_job",
-            replace_existing=True
+            replace_existing=True,
+            next_run_time=datetime.now()
         )
         scheduler.start()
-        print(f"APScheduler Started: Background threat collectors running every {interval} minutes.")
+        print(f"APScheduler Started: Background threat collectors running every {interval} minutes and starting immediately.")
 
 def restart_scheduler(new_interval: int):
     """Dynamically adjust polling interval without server restart."""
