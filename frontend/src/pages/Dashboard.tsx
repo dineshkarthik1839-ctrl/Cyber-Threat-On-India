@@ -122,35 +122,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, padding: "4px", background: "rgba(10, 18, 30, 0.4)", borderRadius: 10, width: "fit-content", border: "1px solid #1a2d45" }}>
-        {["ALL", "SENSOR", "INTELLIGENCE", "SIMULATION"].map(filter => (
-          <button
-            key={filter}
-            onClick={() => setSourceFilter(filter as any)}
-            style={{
-              padding: "8px 16px",
-              borderRadius: 6,
-              fontSize: 12,
-              fontWeight: 700,
-              background: sourceFilter === filter ? "#1a8dd0" : "transparent",
-              color: sourceFilter === filter ? "#fff" : "#8da5c4",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            {filter === "ALL" ? "ALL SOURCES" : 
-             filter === "SENSOR" ? "🔴 LIVE SENSOR" : 
-             filter === "INTELLIGENCE" ? "🟡 LIVE INTELLIGENCE" : "🟣 SIMULATION"}
-          </button>
-        ))}
-      </div>
-
-      {sourceFilter === "SIMULATION" && (
-        <div style={{ marginBottom: 20, padding: "10px 14px", borderRadius: 8, color: "#b684ff", border: "1px solid #5a3d8a", background: "rgba(90, 61, 138, 0.2)", fontSize: 13, fontWeight: 700 }}>
-          <strong>SIMULATION MODE:</strong> Displaying synthetic demonstration events. These are not real attacks.
-        </div>
-      )}
 
       {isUnavailable && (
         <div style={{ marginBottom: 20, padding: "10px 14px", borderRadius: 8, color: "#b8c7d8", border: "1px solid #36516d", background: "#112033", fontSize: 11 }}>
