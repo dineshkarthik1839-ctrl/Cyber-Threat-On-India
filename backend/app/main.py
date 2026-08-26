@@ -89,14 +89,10 @@ async def lifespan(app: FastAPI):
     # 3. Start APScheduler background collectors
     start_scheduler()
     
-    # 4. Start Telemetry Simulator loop
-    sim_task = asyncio.create_task(run_telemetry_simulator())
-    
     yield  # Application runs here
     
     # Shutdown
     logger.info("🛑 Shutting down ICTIP Backend...")
-    sim_task.cancel()
     shutdown_scheduler()
     try:
         redis_config.clear_all_cache()

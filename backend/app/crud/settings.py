@@ -32,7 +32,7 @@ def get_collector_settings(db: Session) -> CollectorSettings:
         abuseipdb_key=get_setting(db, "abuseipdb_key", ABUSEIPDB_API_KEY),
         otx_key=get_setting(db, "otx_key", OTX_API_KEY),
         poll_interval_minutes=int(get_setting(db, "poll_interval_minutes", "10")),
-        simulation_mode=get_setting(db, "simulation_mode", "true") == "true",
+        simulation_mode=get_setting(db, "simulation_mode", "false") == "true",
     )
 
 def update_collector_settings(db: Session, settings: CollectorSettings) -> CollectorSettings:
